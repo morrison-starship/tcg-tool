@@ -1,0 +1,1549 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="TCGのセンタリングを簡単チェック。PSA、BGS、CGCの予想グレードを無料で測定できるツールです。トレーディングカードのセンタリング測定に最適。">
+    <title>TCGセンタリングチェッカー - トレーディングカードのセンタリングを簡単チェック</title>
+    
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-HNPFE6Q6HL"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-HNPFE6Q6HL');
+    </script>
+    
+    <!-- Favicon -->
+    <!-- 
+    ファビコンを設定する場合は、以下のコメントを解除して、favicon.icoファイルをサイトのルートディレクトリに配置してください
+    
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    -->
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+        @media (max-width: 768px) {
+            .mobile-tab {
+                font-size: 14px;
+                padding: 12px 16px;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-900">
+    <div id="app" class="min-h-screen py-4 md:py-8">
+        <div class="container mx-auto px-2 md:px-4 max-w-7xl">
+            <!-- ヘッダー -->
+            <div class="mb-4 md:mb-8">
+                <div class="flex justify-between items-center mb-4">
+                    <div>
+                        <h1 class="text-xl md:text-3xl font-bold text-white" data-i18n="title">TCGセンタリングチェッカー</h1>
+                        <p class="text-sm text-gray-400 mt-1">トレーディングカードのセンタリングを簡単チェック</p>
+                    </div>
+                    <button id="langToggle" class="px-4 py-2 bg-white text-gray-900 rounded-lg hover:bg-gray-100 transition-colors font-medium">
+                        EN
+                    </button>
+                </div>
+                
+                <!-- 上部ナビゲーション -->
+                <nav class="flex flex-wrap gap-2 text-sm">
+                    <a href="../" class="text-gray-300 hover:text-white transition-colors">ホーム</a>
+                    <span class="text-gray-600">|</span>
+                    <a href="./" class="text-white font-semibold">センタリングチェッカー</a>
+                    <span class="text-gray-600">|</span>
+                    <a href="how-to-use.html" class="text-gray-300 hover:text-white transition-colors">使い方</a>
+                </nav>
+            </div>
+
+            <!-- アップロードエリア -->
+            <div class="bg-gray-800 rounded-lg shadow-sm p-3 md:p-6 mb-4 md:mb-6 border border-gray-700">
+                <label class="block cursor-pointer">
+                    <input type="file" id="imageUpload" multiple accept="image/*" class="hidden">
+                    <div class="text-center py-6 md:py-8 border-2 border-dashed border-gray-600 rounded-lg hover:border-gray-500 transition-colors">
+                        <svg class="w-10 h-10 md:w-12 md:h-12 mx-auto mb-2 md:mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                        </svg>
+                        <p class="text-lg md:text-xl text-gray-200 font-medium" data-i18n="upload">画像をアップロード</p>
+                    </div>
+                </label>
+            </div>
+
+            <!-- 画像編集パネル（動的に追加） -->
+            <div id="imagePanels"></div>
+
+            <!-- アクションボタン -->
+            <div id="actionButtons" class="hidden flex flex-col md:flex-row gap-2 md:gap-4 justify-center mt-4 md:mt-8">
+                <button id="downloadAll" class="flex items-center justify-center gap-2 bg-white hover:bg-gray-100 text-gray-900 px-6 md:px-8 py-3 rounded-lg font-semibold transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                    </svg>
+                    <span data-i18n="downloadAll">一括ダウンロード</span>
+                </button>
+                <button id="resetAll" class="flex items-center justify-center gap-2 bg-gray-700 hover:bg-gray-600 text-white px-6 md:px-8 py-3 rounded-lg font-semibold transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                    </svg>
+                    <span data-i18n="reset">全てリセット</span>
+                </button>
+            </div>
+        </div>
+
+    <!-- フッター -->
+    <footer class="mt-12 pt-8 border-t border-gray-700 text-center text-gray-400 text-sm">
+        <div class="container mx-auto px-4 max-w-7xl">
+            <div class="flex flex-wrap justify-center gap-4 mb-4">
+                <a href="../terms.html" class="hover:text-white transition-colors">利用規約</a>
+                <span>|</span>
+                <a href="../contact.html" class="hover:text-white transition-colors">お問い合わせ</a>
+                <span>|</span>
+                <a href="../privacy.html" class="hover:text-white transition-colors">プライバシーポリシー</a>
+                <span>|</span>
+                <a href="../about.html" class="hover:text-white transition-colors">運営者情報</a>
+            </div>
+            <p>&copy; 2026 TCGセンタリングチェッカー by cardgamer819</p>
+        </div>
+    </footer>
+    </div>
+
+    <script>
+        let images = [];
+        let currentLang = 'ja';
+
+        const translations = {
+            ja: {
+                title: 'TCGセンタリングチェッカー',
+                upload: '画像をアップロード',
+                edit: '編集',
+                result: '結果',
+                outerLine: 'アウターライン',
+                innerLine: 'インナーライン',
+                fileName: 'ファイル名',
+                rectangleMode: '長方形維持モード',
+                zoom: '拡大・縮小',
+                front: '表',
+                back: '裏',
+                reset: '全てリセット',
+                download: 'ダウンロード',
+                downloadAll: '一括ダウンロード',
+                advanced: '詳細設定',
+                rotation3d: '3軸回転（使用非推奨）',
+                rotationX: 'X軸回転（上下）',
+                rotationY: 'Y軸回転（左右）',
+                rotationZ: 'Z軸回転（平面）',
+                lrMeasurement: 'L/R 測定',
+                tbMeasurement: 'T/B 測定'
+            },
+            en: {
+                title: 'TCG Centering Checker',
+                upload: 'Upload Image',
+                edit: 'Edit',
+                result: 'Result',
+                outerLine: 'Outer Line',
+                innerLine: 'Inner Line',
+                fileName: 'File Name',
+                rectangleMode: 'Rectangle Mode',
+                zoom: 'Zoom',
+                front: 'Front',
+                back: 'Back',
+                reset: 'Reset All',
+                download: 'Download',
+                downloadAll: 'Download All',
+                advanced: 'Advanced',
+                rotation3d: '3D Rotation (Not Recommended)',
+                rotationX: 'X-axis (Pitch)',
+                rotationY: 'Y-axis (Yaw)',
+                rotationZ: 'Z-axis (Roll)',
+                lrMeasurement: 'L/R Measurement',
+                tbMeasurement: 'T/B Measurement'
+            }
+        };
+
+        function updateLanguage() {
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[currentLang][key]) {
+                    el.textContent = translations[currentLang][key];
+                }
+            });
+            document.getElementById('langToggle').textContent = currentLang === 'ja' ? 'EN' : '日本語';
+        }
+
+        document.getElementById('langToggle').addEventListener('click', () => {
+            currentLang = currentLang === 'ja' ? 'en' : 'ja';
+            updateLanguage();
+        });
+
+        // グレード計算関数
+        function calculateGrades(worstRatio, side) {
+            const isFront = side === 'front';
+            let psa = 0, bgs = 0, cgc = 0;
+
+            if (isFront) {
+                if (worstRatio <= 5) psa = 10;
+                else if (worstRatio <= 10) psa = 9;
+                else if (worstRatio <= 15) psa = 8;
+                else if (worstRatio <= 20) psa = 7;
+                else psa = 6;
+            } else {
+                if (worstRatio <= 25) psa = 10;
+                else if (worstRatio <= 40) psa = 9;
+                else psa = 6;
+            }
+
+            if (isFront) {
+                if (worstRatio === 0) bgs = 10;
+                else if (worstRatio <= 5) bgs = 9.5;
+                else if (worstRatio <= 10) bgs = 9;
+                else if (worstRatio <= 15) bgs = 8;
+                else if (worstRatio <= 20) bgs = 7;
+                else bgs = 6;
+            } else {
+                if (worstRatio === 0) bgs = 10;
+                else if (worstRatio <= 25) bgs = 9.5;
+                else if (worstRatio <= 40) bgs = 9;
+                else bgs = 7;
+            }
+
+            if (isFront) {
+                if (worstRatio === 0) cgc = '10_Pristine';
+                else if (worstRatio <= 5) cgc = '10_GemMint';
+                else if (worstRatio <= 10) cgc = 9;
+                else if (worstRatio <= 15) cgc = 8;
+                else if (worstRatio <= 20) cgc = 7;
+                else if (worstRatio <= 25) cgc = 6;
+                else cgc = 5;
+            } else {
+                if (worstRatio === 0) cgc = '10_Pristine';
+                else if (worstRatio <= 5) cgc = '10_GemMint';
+                else if (worstRatio <= 10) cgc = 9;
+                else if (worstRatio <= 20) cgc = 8;
+                else if (worstRatio <= 30) cgc = 7;
+                else cgc = 6;
+            }
+
+            return { psa, bgs, cgc };
+        }
+
+        // 正しいセンタリング計算（辺の最悪値方式）
+        function calculateCenteringAdvanced(image) {
+            const lines = calculateInnerLinePositions(image.outerCorners, image.innerLines);
+            const outer = image.outerCorners;
+            
+            // 左辺の幅（左辺の2端点での余白を測定）
+            const leftTop = Math.abs(lines.left.start.x - outer.topLeft.x);
+            const leftBottom = Math.abs(lines.left.end.x - outer.bottomLeft.x);
+            const leftWidth = Math.max(leftTop, leftBottom);
+            
+            // 右辺の幅
+            const rightTop = Math.abs(outer.topRight.x - lines.right.start.x);
+            const rightBottom = Math.abs(outer.bottomRight.x - lines.right.end.x);
+            const rightWidth = Math.max(rightTop, rightBottom);
+            
+            // 上辺の幅
+            const topLeft = Math.abs(lines.top.start.y - outer.topLeft.y);
+            const topRight = Math.abs(lines.top.end.y - outer.topRight.y);
+            const topWidth = Math.max(topLeft, topRight);
+            
+            // 下辺の幅
+            const bottomLeft = Math.abs(outer.bottomLeft.y - lines.bottom.start.y);
+            const bottomRight = Math.abs(outer.bottomRight.y - lines.bottom.end.y);
+            const bottomWidth = Math.max(bottomLeft, bottomRight);
+            
+            // 左右比率
+            const lrRatio = (leftWidth / (leftWidth + rightWidth)) * 100;
+            const lrRatioRounded = Math.round(lrRatio);  // 四捨五入
+            const lrDeviation = Math.abs(50 - lrRatioRounded);  // 四捨五入した値で計算
+            
+            // 上下比率
+            const tbRatio = (topWidth / (topWidth + bottomWidth)) * 100;
+            const tbRatioRounded = Math.round(tbRatio);  // 四捨五入
+            const tbDeviation = Math.abs(50 - tbRatioRounded);  // 四捨五入した値で計算
+            
+            // 最終的な最悪値
+            const worstDeviation = Math.max(lrDeviation, tbDeviation);
+            const grades = calculateGrades(worstDeviation, image.side);
+            
+            return {
+                leftRight: `${lrRatio.toFixed(1)}/${(100 - lrRatio).toFixed(1)}`,
+                topBottom: `${tbRatio.toFixed(1)}/${(100 - tbRatio).toFixed(1)}`,
+                grades: grades
+            };
+        }
+
+        // キャンバス描画
+        function drawCanvas(canvas, image, mode) {
+            const ctx = canvas.getContext('2d');
+            const img = image.imgElement;
+
+            const maxWidth = window.innerWidth < 768 ? 350 : 600;
+            let width = img.width;
+            let height = img.height;
+
+            if (width > maxWidth) {
+                height = (maxWidth / width) * height;
+                width = maxWidth;
+            }
+
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+            ctx.scale(dpr, dpr);
+
+            ctx.clearRect(0, 0, width, height);
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
+
+            // 画像描画
+            ctx.save();
+            ctx.translate(width / 2, height / 2);
+            ctx.rotate((image.rotationZ * Math.PI) / 180);
+            const scaleX = Math.cos((image.rotationY * Math.PI) / 180);
+            const scaleY = Math.cos((image.rotationX * Math.PI) / 180);
+            ctx.scale(scaleX * image.zoom / 100, scaleY * image.zoom / 100);
+            ctx.drawImage(img, -width / 2, -height / 2, width, height);
+            ctx.restore();
+
+            // 描画
+            if (mode === 'outer') {
+                // アウター調整中
+                drawOuterLine(ctx, image.outerCorners, width, height, '#4ade80', 2, true);
+                if (image.outerConfirmed) {
+                    drawInnerLines(ctx, image.outerCorners, image.innerLines, width, height, '#f87171', 2, false);
+                }
+            } else if (mode === 'inner') {
+                // インナー調整中
+                drawOuterLine(ctx, image.outerCorners, width, height, '#4ade80', 2, false);
+                drawInnerLines(ctx, image.outerCorners, image.innerLines, width, height, '#f87171', 2, true);
+            }
+        }
+
+        function drawOuterLine(ctx, corners, width, height, color, lineWidth, withHandles) {
+            ctx.strokeStyle = color;
+            ctx.lineWidth = lineWidth;
+            ctx.beginPath();
+            ctx.moveTo((corners.topLeft.x / 100) * width, (corners.topLeft.y / 100) * height);
+            ctx.lineTo((corners.topRight.x / 100) * width, (corners.topRight.y / 100) * height);
+            ctx.lineTo((corners.bottomRight.x / 100) * width, (corners.bottomRight.y / 100) * height);
+            ctx.lineTo((corners.bottomLeft.x / 100) * width, (corners.bottomLeft.y / 100) * height);
+            ctx.closePath();
+            ctx.stroke();
+
+            if (withHandles) {
+                const offset = 35;
+                drawHandle(ctx, corners.topLeft, width, height, color, offset);
+                drawHandle(ctx, corners.topRight, width, height, color, offset);
+                drawHandle(ctx, corners.bottomLeft, width, height, color, offset);
+                drawHandle(ctx, corners.bottomRight, width, height, color, offset);
+            }
+        }
+
+        function drawInnerLines(ctx, outer, innerLines, width, height, color, lineWidth, withHandles) {
+            // 各辺の座標を計算
+            const lines = calculateInnerLinePositions(outer, innerLines);
+            
+            ctx.strokeStyle = color;
+            ctx.lineWidth = lineWidth;
+            
+            // 上辺
+            ctx.beginPath();
+            ctx.moveTo(lines.top.start.x * width / 100, lines.top.start.y * height / 100);
+            ctx.lineTo(lines.top.end.x * width / 100, lines.top.end.y * height / 100);
+            ctx.stroke();
+            
+            // 下辺
+            ctx.beginPath();
+            ctx.moveTo(lines.bottom.start.x * width / 100, lines.bottom.start.y * height / 100);
+            ctx.lineTo(lines.bottom.end.x * width / 100, lines.bottom.end.y * height / 100);
+            ctx.stroke();
+            
+            // 左辺
+            ctx.beginPath();
+            ctx.moveTo(lines.left.start.x * width / 100, lines.left.start.y * height / 100);
+            ctx.lineTo(lines.left.end.x * width / 100, lines.left.end.y * height / 100);
+            ctx.stroke();
+            
+            // 右辺
+            ctx.beginPath();
+            ctx.moveTo(lines.right.start.x * width / 100, lines.right.start.y * height / 100);
+            ctx.lineTo(lines.right.end.x * width / 100, lines.right.end.y * height / 100);
+            ctx.stroke();
+            
+            
+            if (withHandles) {
+                // 各辺の中央に三角形ハンドル（外向き、内側に配置）
+                const distance = 40;  // 全て40pxに統一
+                
+                // 上辺：上向き▲（外側配置）
+                const topAngle = Math.atan2(lines.top.end.y - lines.top.start.y, lines.top.end.x - lines.top.start.x);
+                drawTriangleHandleWithAngle(ctx, 
+                    { x: (lines.top.start.x + lines.top.end.x) / 2, y: (lines.top.start.y + lines.top.end.y) / 2 }, 
+                    width, height, color, topAngle - Math.PI / 2, distance, true);
+                
+                // 下辺：下向き▼（外側配置）
+                const bottomAngle = Math.atan2(lines.bottom.end.y - lines.bottom.start.y, lines.bottom.end.x - lines.bottom.start.x);
+                drawTriangleHandleWithAngle(ctx, 
+                    { x: (lines.bottom.start.x + lines.bottom.end.x) / 2, y: (lines.bottom.start.y + lines.bottom.end.y) / 2 }, 
+                    width, height, color, bottomAngle + Math.PI / 2, distance, true);
+                
+                // 左辺：右向き▶（内側配置、三角だけ180度回転）
+                const leftAngle = Math.atan2(lines.left.end.y - lines.left.start.y, lines.left.end.x - lines.left.start.x);
+                drawTriangleHandleWithAngle(ctx, 
+                    { x: (lines.left.start.x + lines.left.end.x) / 2, y: (lines.left.start.y + lines.left.end.y) / 2 }, 
+                    width, height, color, leftAngle - Math.PI / 2 + Math.PI, distance, true);
+                
+                // 右辺：左向き◀（内側配置、三角だけ180度回転）
+                const rightAngle = Math.atan2(lines.right.end.y - lines.right.start.y, lines.right.end.x - lines.right.start.x);
+                drawTriangleHandleWithAngle(ctx, 
+                    { x: (lines.right.start.x + lines.right.end.x) / 2, y: (lines.right.start.y + lines.right.end.y) / 2 }, 
+                    width, height, color, rightAngle + Math.PI / 2 + Math.PI, distance, true);
+            }
+        }
+
+        function drawTriangleHandleWithAngle(ctx, point, width, height, color, angle, distance, isOutside = false) {
+            const x = (point.x / 100) * width;
+            const y = (point.y / 100) * height;
+            const size = 18;
+            
+            // angleと逆方向に移動（isOutside=trueなら外側、falseなら内側）
+            const normalAngle = angle + Math.PI;
+            const centerX = x + (isOutside ? 1 : -1) * Math.cos(normalAngle) * distance;
+            const centerY = y + (isOutside ? 1 : -1) * Math.sin(normalAngle) * distance;
+            
+            // 三角形の3点を計算（angleの方向を向く）
+            const tipX = centerX + Math.cos(angle) * size;
+            const tipY = centerY + Math.sin(angle) * size;
+            
+            const base1X = centerX + Math.cos(angle + Math.PI * 2.3 / 3) * size;
+            const base1Y = centerY + Math.sin(angle + Math.PI * 2.3 / 3) * size;
+            
+            const base2X = centerX + Math.cos(angle - Math.PI * 2.3 / 3) * size;
+            const base2Y = centerY + Math.sin(angle - Math.PI * 2.3 / 3) * size;
+            
+            // 三角形描画
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.moveTo(tipX, tipY);
+            ctx.lineTo(base1X, base1Y);
+            ctx.lineTo(base2X, base2Y);
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        function drawTriangleHandle(ctx, point, width, height, color, direction) {
+            const x = (point.x / 100) * width;
+            const y = (point.y / 100) * height;
+            const size = 18;
+            
+            let trianglePoints = [];
+            
+            if (direction === 'up') {
+                // 上向き▲（線の内側＝下に配置）
+                const offsetY = -size;
+                trianglePoints = [
+                    { x: x, y: y + offsetY - size },
+                    { x: x - size * 0.7, y: y + offsetY + size * 0.5 },
+                    { x: x + size * 0.7, y: y + offsetY + size * 0.5 }
+                ];
+            } else if (direction === 'down') {
+                // 下向き▼（線の内側＝上に配置）
+                const offsetY = size;
+                trianglePoints = [
+                    { x: x, y: y + offsetY + size },
+                    { x: x - size * 0.7, y: y + offsetY - size * 0.5 },
+                    { x: x + size * 0.7, y: y + offsetY - size * 0.5 }
+                ];
+            } else if (direction === 'left') {
+                // 左向き◀（線の内側＝右に配置）
+                const offsetX = -size;
+                trianglePoints = [
+                    { x: x + offsetX - size, y: y },
+                    { x: x + offsetX + size * 0.5, y: y - size * 0.7 },
+                    { x: x + offsetX + size * 0.5, y: y + size * 0.7 }
+                ];
+            } else if (direction === 'right') {
+                // 右向き▶（線の内側＝左に配置）
+                const offsetX = size;
+                trianglePoints = [
+                    { x: x + offsetX + size, y: y },
+                    { x: x + offsetX - size * 0.5, y: y - size * 0.7 },
+                    { x: x + offsetX - size * 0.5, y: y + size * 0.7 }
+                ];
+            }
+            
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.moveTo(trianglePoints[0].x, trianglePoints[0].y);
+            ctx.lineTo(trianglePoints[1].x, trianglePoints[1].y);
+            ctx.lineTo(trianglePoints[2].x, trianglePoints[2].y);
+            ctx.closePath();
+            ctx.fill();
+        }
+        
+
+        function calculateInnerLinePositions(outer, innerLines) {
+            // 各辺のベクトルと法線を計算
+            const topVec = { x: outer.topRight.x - outer.topLeft.x, y: outer.topRight.y - outer.topLeft.y };
+            const topLen = Math.sqrt(topVec.x * topVec.x + topVec.y * topVec.y);
+            const topNormal = { x: -topVec.y / topLen, y: topVec.x / topLen };
+            
+            const bottomVec = { x: outer.bottomRight.x - outer.bottomLeft.x, y: outer.bottomRight.y - outer.bottomLeft.y };
+            const bottomLen = Math.sqrt(bottomVec.x * bottomVec.x + bottomVec.y * bottomVec.y);
+            const bottomNormal = { x: bottomVec.y / bottomLen, y: -bottomVec.x / bottomLen };
+            
+            const leftVec = { x: outer.bottomLeft.x - outer.topLeft.x, y: outer.bottomLeft.y - outer.topLeft.y };
+            const leftLen = Math.sqrt(leftVec.x * leftVec.x + leftVec.y * leftVec.y);
+            const leftNormal = { x: leftVec.y / leftLen, y: -leftVec.x / leftLen };
+            
+            const rightVec = { x: outer.bottomRight.x - outer.topRight.x, y: outer.bottomRight.y - outer.topRight.y };
+            const rightLen = Math.sqrt(rightVec.x * rightVec.x + rightVec.y * rightVec.y);
+            const rightNormal = { x: -rightVec.y / rightLen, y: rightVec.x / rightLen };
+            
+            // 各辺のオフセット量（%）を各辺の長さでピクセルに変換
+            return {
+                top: {
+                    start: {
+                        x: outer.topLeft.x + topNormal.x * topLen * innerLines.top.offset / 100,
+                        y: outer.topLeft.y + topNormal.y * topLen * innerLines.top.offset / 100
+                    },
+                    end: {
+                        x: outer.topRight.x + topNormal.x * topLen * innerLines.top.offset / 100,
+                        y: outer.topRight.y + topNormal.y * topLen * innerLines.top.offset / 100
+                    }
+                },
+                bottom: {
+                    start: {
+                        x: outer.bottomLeft.x + bottomNormal.x * bottomLen * innerLines.bottom.offset / 100,
+                        y: outer.bottomLeft.y + bottomNormal.y * bottomLen * innerLines.bottom.offset / 100
+                    },
+                    end: {
+                        x: outer.bottomRight.x + bottomNormal.x * bottomLen * innerLines.bottom.offset / 100,
+                        y: outer.bottomRight.y + bottomNormal.y * bottomLen * innerLines.bottom.offset / 100
+                    }
+                },
+                left: {
+                    start: {
+                        x: outer.topLeft.x + leftNormal.x * leftLen * innerLines.left.offset / 100,
+                        y: outer.topLeft.y + leftNormal.y * leftLen * innerLines.left.offset / 100
+                    },
+                    end: {
+                        x: outer.bottomLeft.x + leftNormal.x * leftLen * innerLines.left.offset / 100,
+                        y: outer.bottomLeft.y + leftNormal.y * leftLen * innerLines.left.offset / 100
+                    }
+                },
+                right: {
+                    start: {
+                        x: outer.topRight.x + rightNormal.x * rightLen * innerLines.right.offset / 100,
+                        y: outer.topRight.y + rightNormal.y * rightLen * innerLines.right.offset / 100
+                    },
+                    end: {
+                        x: outer.bottomRight.x + rightNormal.x * rightLen * innerLines.right.offset / 100,
+                        y: outer.bottomRight.y + rightNormal.y * rightLen * innerLines.right.offset / 100
+                    }
+                }
+            };
+        }
+
+        function drawHandle(ctx, point, width, height, color, offset) {
+            const x = (point.x / 100) * width;
+            const y = (point.y / 100) * height;
+            
+            let offsetX = 0, offsetY = 0;
+            
+            if (point.x < 50 && point.y < 50) {
+                offsetX = offset; offsetY = offset;
+            } else if (point.x >= 50 && point.y < 50) {
+                offsetX = -offset; offsetY = offset;
+            } else if (point.x < 50 && point.y >= 50) {
+                offsetX = offset; offsetY = -offset;
+            } else {
+                offsetX = -offset; offsetY = -offset;
+            }
+            
+            const handleX = x + offsetX;
+            const handleY = y + offsetY;
+            
+            ctx.fillStyle = color + '40';
+            ctx.beginPath();
+            ctx.arc(handleX, handleY, 14, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.arc(handleX, handleY, 11, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.fillStyle = 'white';
+            ctx.beginPath();
+            ctx.arc(handleX, handleY, 7, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.strokeStyle = color + '80';
+            ctx.lineWidth = 3;
+            ctx.setLineDash([4, 4]);
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.lineTo(handleX, handleY);
+            ctx.stroke();
+            ctx.setLineDash([]);
+        }
+
+        // 結果生成（2枚）
+        // 結果生成（1枚の画像に全余白を表示）
+        function generateResult(image) {
+            const canvas = image.resultCanvas;
+            const ctx = canvas.getContext('2d');
+            const img = image.imgElement;
+
+            const maxWidth = window.innerWidth < 768 ? 300 : 400;
+            let width = img.width;
+            let height = img.height;
+
+            if (width > maxWidth) {
+                height = (maxWidth / width) * height;
+                width = maxWidth;
+            }
+            
+            const textHeight = 40;  // 結果テキスト領域の高さ
+
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = width * dpr;
+            canvas.height = (height + textHeight) * dpr;  // テキスト領域を追加
+            canvas.style.width = width + 'px';
+            canvas.style.height = (height + textHeight) + 'px';
+            ctx.scale(dpr, dpr);
+
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
+
+            // 画像描画
+            ctx.save();
+            ctx.translate(width / 2, height / 2);
+            ctx.rotate((image.rotationZ * Math.PI) / 180);
+            const scaleX = Math.cos((image.rotationY * Math.PI) / 180);
+            const scaleY = Math.cos((image.rotationX * Math.PI) / 180);
+            ctx.scale(scaleX * image.zoom / 100, scaleY * image.zoom / 100);
+            ctx.drawImage(img, -width / 2, -height / 2, width, height);
+            ctx.restore();
+
+            const lines = calculateInnerLinePositions(image.outerCorners, image.innerLines);
+            const outer = image.outerCorners;
+
+            // 全ての余白を塗りつぶし（4つの台形）
+            // 左の余白
+            drawHatchedArea(ctx, [
+                { x: (outer.topLeft.x / 100) * width, y: (outer.topLeft.y / 100) * height },
+                { x: (lines.left.start.x / 100) * width, y: (lines.left.start.y / 100) * height },
+                { x: (lines.left.end.x / 100) * width, y: (lines.left.end.y / 100) * height },
+                { x: (outer.bottomLeft.x / 100) * width, y: (outer.bottomLeft.y / 100) * height }
+            ], '#3b82f6');
+
+            // 右の余白
+            drawHatchedArea(ctx, [
+                { x: (lines.right.start.x / 100) * width, y: (lines.right.start.y / 100) * height },
+                { x: (outer.topRight.x / 100) * width, y: (outer.topRight.y / 100) * height },
+                { x: (outer.bottomRight.x / 100) * width, y: (outer.bottomRight.y / 100) * height },
+                { x: (lines.right.end.x / 100) * width, y: (lines.right.end.y / 100) * height }
+            ], '#3b82f6');
+
+            // 上の余白
+            drawHatchedArea(ctx, [
+                { x: (outer.topLeft.x / 100) * width, y: (outer.topLeft.y / 100) * height },
+                { x: (outer.topRight.x / 100) * width, y: (outer.topRight.y / 100) * height },
+                { x: (lines.top.end.x / 100) * width, y: (lines.top.end.y / 100) * height },
+                { x: (lines.top.start.x / 100) * width, y: (lines.top.start.y / 100) * height }
+            ], '#3b82f6');
+
+            // 下の余白
+            drawHatchedArea(ctx, [
+                { x: (lines.bottom.start.x / 100) * width, y: (lines.bottom.start.y / 100) * height },
+                { x: (lines.bottom.end.x / 100) * width, y: (lines.bottom.end.y / 100) * height },
+                { x: (outer.bottomRight.x / 100) * width, y: (outer.bottomRight.y / 100) * height },
+                { x: (outer.bottomLeft.x / 100) * width, y: (outer.bottomLeft.y / 100) * height }
+            ], '#3b82f6');
+
+            // ライン描画（アウター）
+            ctx.strokeStyle = '#4ade80';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo((outer.topLeft.x / 100) * width, (outer.topLeft.y / 100) * height);
+            ctx.lineTo((outer.topRight.x / 100) * width, (outer.topRight.y / 100) * height);
+            ctx.lineTo((outer.bottomRight.x / 100) * width, (outer.bottomRight.y / 100) * height);
+            ctx.lineTo((outer.bottomLeft.x / 100) * width, (outer.bottomLeft.y / 100) * height);
+            ctx.closePath();
+            ctx.stroke();
+
+            // ライン描画（インナー4本）
+            ctx.strokeStyle = '#f87171';
+            ctx.lineWidth = 2;
+            
+            ctx.beginPath();
+            ctx.moveTo((lines.top.start.x / 100) * width, (lines.top.start.y / 100) * height);
+            ctx.lineTo((lines.top.end.x / 100) * width, (lines.top.end.y / 100) * height);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo((lines.bottom.start.x / 100) * width, (lines.bottom.start.y / 100) * height);
+            ctx.lineTo((lines.bottom.end.x / 100) * width, (lines.bottom.end.y / 100) * height);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo((lines.left.start.x / 100) * width, (lines.left.start.y / 100) * height);
+            ctx.lineTo((lines.left.end.x / 100) * width, (lines.left.end.y / 100) * height);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo((lines.right.start.x / 100) * width, (lines.right.start.y / 100) * height);
+            ctx.lineTo((lines.right.end.x / 100) * width, (lines.right.end.y / 100) * height);
+            ctx.stroke();
+
+            // スコア更新
+            const centering = calculateCenteringAdvanced(image);
+            
+            if (image.scoreElements) {
+                image.scoreElements.psa.textContent = centering.grades.psa;
+                image.scoreElements.bgs.textContent = centering.grades.bgs;
+                image.scoreElements.cgc.textContent = centering.grades.cgc;
+            }
+            
+            // 画像下部に結果テキストを描画（2段表示）
+            const line1 = `PSA:${centering.grades.psa} BGS:${centering.grades.bgs} CGC:${centering.grades.cgc}`;
+            const line2 = `L/R:${centering.leftRight} T/B:${centering.topBottom}`;
+            
+            // 背景（グレー）
+            ctx.fillStyle = '#1f2937';
+            ctx.fillRect(0, height, width, textHeight);
+            
+            // 上線（ボーダー）
+            ctx.strokeStyle = '#374151';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(0, height);
+            ctx.lineTo(width, height);
+            ctx.stroke();
+            
+            // テキスト（2行）
+            ctx.fillStyle = '#d1d5db';
+            ctx.font = '11px monospace';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            // 1段目
+            ctx.fillText(line1, width / 2, height + textHeight / 4);
+            // 2段目
+            ctx.fillText(line2, width / 2, height + textHeight * 3 / 4);
+
+            image.generated = true;
+        }
+
+        function drawHatchedArea(ctx, points, color) {
+            ctx.save();
+            ctx.beginPath();
+            ctx.moveTo(points[0].x, points[0].y);
+            for (let i = 1; i < points.length; i++) {
+                ctx.lineTo(points[i].x, points[i].y);
+            }
+            ctx.closePath();
+            ctx.clip();
+
+            ctx.strokeStyle = color;
+            ctx.globalAlpha = 0.6;
+            ctx.lineWidth = 3;
+            
+            const minX = Math.min(...points.map(p => p.x));
+            const maxX = Math.max(...points.map(p => p.x));
+            const minY = Math.min(...points.map(p => p.y));
+            const maxY = Math.max(...points.map(p => p.y));
+            
+            for (let i = minX - maxY; i < maxX + maxY; i += 4) {
+                ctx.beginPath();
+                ctx.moveTo(i, minY);
+                ctx.lineTo(i + maxY - minY, maxY);
+                ctx.stroke();
+            }
+            
+            ctx.restore();
+        }
+
+        // 画像アップロード
+        document.getElementById('imageUpload').addEventListener('change', (e) => {
+            const files = Array.from(e.target.files);
+            files.forEach((file, index) => {
+                createImagePanel(file, index);
+            });
+        });
+
+        function createImagePanel(file, index) {
+            const id = `image-${Date.now()}-${index}`;
+            const img = new Image();
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                img.src = e.target.result;
+                img.onload = function() {
+                    const imageData = {
+                        id,
+                        name: file.name.replace(/\.[^/.]+$/, ''),
+                        imgElement: img,
+                        innerLines: {
+                            top: { offset: 15 },
+                            bottom: { offset: 15 },
+                            left: { offset: 15 },
+                            right: { offset: 15 }
+                        },
+                        outerCorners: {
+                            topLeft: { x: 20, y: 15 },
+                            topRight: { x: 80, y: 15 },
+                            bottomLeft: { x: 20, y: 85 },
+                            bottomRight: { x: 80, y: 85 }
+                        },
+                        zoom: 90,
+                        rotationX: 0,
+                        rotationY: 0,
+                        rotationZ: 0,
+                        side: 'front',
+                        generated: false,
+                        activeTab: 'edit',
+                        editMode: 'outer',
+                        outerConfirmed: false
+                    };
+
+                    images.push(imageData);
+                    renderImagePanel(imageData);
+                    updateActionButtons();
+                };
+            };
+
+            reader.readAsDataURL(file);
+        }
+
+        function updateActionButtons() {
+            const actionButtons = document.getElementById('actionButtons');
+            const downloadAllBtn = document.getElementById('downloadAll');
+            
+            // 一括ダウンロードボタンは画像があれば常に表示
+            if (images.length > 0) {
+                actionButtons.classList.remove('hidden');
+                downloadAllBtn.style.display = 'flex';
+            } else {
+                actionButtons.classList.add('hidden');
+            }
+        }
+
+        function renderImagePanel(image) {
+            const panel = document.createElement('div');
+            panel.className = 'bg-gray-800 rounded-lg shadow-sm p-3 md:p-6 mb-4 md:mb-8 border border-gray-700';
+            panel.innerHTML = `
+                <!-- ヘッダー（×ボタン付き） -->
+                <div class="flex justify-between items-center mb-4">
+                    <div></div>
+                    <button data-remove="${image.id}" class="text-gray-400 hover:text-red-400 transition-colors text-2xl font-bold" title="削除">
+                        ×
+                    </button>
+                </div>
+
+                <!-- タブ -->
+                <div class="flex mb-4 gap-2">
+                    <button data-tab="edit" data-id="${image.id}" class="mobile-tab flex-1 py-2 md:py-3 px-3 md:px-4 font-semibold transition-colors rounded-lg bg-white text-gray-900">
+                        <span data-i18n="edit">編集</span>
+                    </button>
+                    <button data-tab="result" data-id="${image.id}" class="mobile-tab flex-1 py-2 md:py-3 px-3 md:px-4 font-semibold transition-colors rounded-lg bg-gray-700 text-gray-300">
+                        <span data-i18n="result">結果</span>
+                    </button>
+                </div>
+
+                <!-- 編集タブ -->
+                <div data-content="edit" data-id="${image.id}">
+                    <div class="flex mb-4 gap-2">
+                        <button data-edit-mode="outer" data-id="${image.id}" class="flex-1 py-2 px-4 rounded-lg font-semibold transition-colors bg-white text-gray-900">
+                            <span data-i18n="outerLine">アウターライン</span>
+                        </button>
+                        <button data-edit-mode="inner" data-id="${image.id}" class="flex-1 py-2 px-4 rounded-lg font-semibold transition-colors bg-gray-500 text-gray-300 cursor-not-allowed" disabled>
+                            <span data-i18n="innerLine">インナーライン</span>
+                        </button>
+                    </div>
+
+                    <div class="rounded-lg overflow-hidden mb-4 bg-gray-900 flex justify-center">
+                        <canvas class="h-auto cursor-move" data-canvas="${image.id}"></canvas>
+                    </div>
+
+                    <div class="space-y-3 md:space-y-4 mb-4">
+                        <div>
+                            <label class="block text-xs md:text-sm font-semibold mb-2 text-gray-300">
+                                <span data-i18n="front">表</span> / <span data-i18n="back">裏</span>
+                            </label>
+                            <div class="flex gap-2">
+                                <button data-side="${image.id}" data-value="front" class="flex-1 py-2 rounded-lg font-semibold text-sm md:text-base bg-white text-gray-900">
+                                    <span data-i18n="front">表</span>
+                                </button>
+                                <button data-side="${image.id}" data-value="back" class="flex-1 py-2 rounded-lg font-semibold text-sm md:text-base bg-gray-700 text-gray-300">
+                                    <span data-i18n="back">裏</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs md:text-sm font-semibold mb-1 text-gray-300" data-i18n="fileName">ファイル名</label>
+                            <input type="text" value="${image.name}" data-name="${image.id}" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm md:text-base text-white focus:ring-2 focus:ring-white focus:border-transparent">
+                        </div>
+                    </div>
+
+                    <details class="mb-4">
+                        <summary class="cursor-pointer text-sm font-semibold text-gray-300 hover:text-white mb-2" data-i18n="advanced">
+                            詳細設定
+                        </summary>
+                        <div class="space-y-3 bg-gray-700 p-3 rounded-lg border border-gray-600">
+                            <div>
+                                <label class="block text-xs font-semibold mb-1 text-gray-300" data-i18n="zoom">拡大・縮小</label>
+                                <input type="range" min="50" max="150" value="90" data-zoom="${image.id}" class="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-white">
+                                <div class="text-center text-xs text-gray-400 mt-1" data-zoom-value="${image.id}">90%</div>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-xs font-semibold mb-1 text-gray-300" data-i18n="rotationX">X軸回転（上下）</label>
+                                <div class="flex gap-2 items-center">
+                                    <input type="range" min="-45" max="45" step="0.01" value="0" data-rotation-x="${image.id}" class="flex-1 h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-white">
+                                    <input type="number" min="-45" max="45" step="0.01" value="0" data-rotation-x-input="${image.id}" class="w-20 bg-gray-600 border border-gray-500 rounded px-2 py-1 text-white text-sm">
+                                </div>
+                                <div class="text-center text-xs text-gray-400 mt-1" data-rotation-x-value="${image.id}">0.00°</div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold mb-1 text-gray-300" data-i18n="rotationY">Y軸回転（左右）</label>
+                                <div class="flex gap-2 items-center">
+                                    <input type="range" min="-45" max="45" step="0.01" value="0" data-rotation-y="${image.id}" class="flex-1 h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-white">
+                                    <input type="number" min="-45" max="45" step="0.01" value="0" data-rotation-y-input="${image.id}" class="w-20 bg-gray-600 border border-gray-500 rounded px-2 py-1 text-white text-sm">
+                                </div>
+                                <div class="text-center text-xs text-gray-400 mt-1" data-rotation-y-value="${image.id}">0.00°</div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold mb-1 text-gray-300" data-i18n="rotationZ">Z軸回転（平面）</label>
+                                <div class="flex gap-2 items-center">
+                                    <input type="range" min="-180" max="180" step="0.01" value="0" data-rotation-z="${image.id}" class="flex-1 h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-white">
+                                    <input type="number" min="-180" max="180" step="0.01" value="0" data-rotation-z-input="${image.id}" class="w-20 bg-gray-600 border border-gray-500 rounded px-2 py-1 text-white text-sm">
+                                </div>
+                                <div class="text-center text-xs text-gray-400 mt-1" data-rotation-z-value="${image.id}">0.00°</div>
+                            </div>
+                        </div>
+                    </details>
+                </div>
+
+                <!-- 結果タブ -->
+                <div data-content="result" data-id="${image.id}" class="hidden">
+                    <div class="space-y-4">
+                        <div class="bg-gray-700 border border-gray-600 rounded-lg p-2 md:p-3">
+                            <div class="grid grid-cols-3 gap-1 md:gap-2 mb-2">
+                                <div class="text-center p-1 md:p-2 bg-gray-800 rounded">
+                                    <div class="font-bold text-xs text-gray-400 mb-0.5">PSA</div>
+                                    <div class="text-lg md:text-xl font-bold text-white" data-score-psa="${image.id}">-</div>
+                                </div>
+                                <div class="text-center p-1 md:p-2 bg-gray-800 rounded">
+                                    <div class="font-bold text-xs text-gray-400 mb-0.5">BGS</div>
+                                    <div class="text-lg md:text-xl font-bold text-white" data-score-bgs="${image.id}">-</div>
+                                </div>
+                                <div class="text-center p-1 md:p-2 bg-gray-800 rounded">
+                                    <div class="font-bold text-xs text-gray-400 mb-0.5">CGC</div>
+                                    <div class="text-lg md:text-xl font-bold text-white" data-score-cgc="${image.id}">-</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="rounded-lg overflow-hidden mb-4 bg-gray-900 border border-gray-700 flex justify-center">
+                            <canvas class="h-auto" data-result="${image.id}"></canvas>
+                        </div>
+
+                        <button data-download="${image.id}" class="w-full bg-white hover:bg-gray-100 text-gray-900 py-3 rounded-lg font-semibold flex items-center justify-center gap-2 transition-colors mb-4">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                            </svg>
+                            <span data-i18n="download">ダウンロード</span>
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('imagePanels').appendChild(panel);
+
+            image.canvas = panel.querySelector(`[data-canvas="${image.id}"]`);
+            image.resultCanvas = panel.querySelector(`[data-result="${image.id}"]`);
+            image.scoreElements = {
+                psa: panel.querySelector(`[data-score-psa="${image.id}"]`),
+                bgs: panel.querySelector(`[data-score-bgs="${image.id}"]`),
+                cgc: panel.querySelector(`[data-score-cgc="${image.id}"]`)
+            };
+
+            setupEventListeners(image, panel);
+            drawCanvas(image.canvas, image, image.editMode);
+            updateLanguage();
+        }
+
+        function setupEventListeners(image, panel) {
+            // 削除ボタン
+            panel.querySelector(`[data-remove="${image.id}"]`).addEventListener("click", () => {
+                if (confirm("この画像を削除しますか？")) {
+                    const index = images.findIndex(img => img.id === image.id);
+                    if (index > -1) {
+                        images.splice(index, 1);
+                    }
+                    panel.remove();
+                    updateActionButtons();
+                    // 全ての画像が削除されたらファイル入力もリセット
+                    if (images.length === 0) {
+                        document.getElementById('imageUpload').value = '';
+                    }
+                }
+            });
+
+            // タブ切り替え
+            panel.querySelectorAll(`[data-tab]`).forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const tabName = tab.dataset.tab;
+                    image.activeTab = tabName;
+                    
+                    panel.querySelectorAll(`[data-tab]`).forEach(t => {
+                        if (t.dataset.tab === tabName) {
+                            t.className = 'mobile-tab flex-1 py-2 md:py-3 px-3 md:px-4 font-semibold transition-colors rounded-lg bg-white text-gray-900';
+                        } else {
+                            t.className = 'mobile-tab flex-1 py-2 md:py-3 px-3 md:px-4 font-semibold transition-colors rounded-lg bg-gray-700 text-gray-300';
+                        }
+                    });
+                    
+                    panel.querySelectorAll(`[data-content]`).forEach(content => {
+                        content.classList.toggle('hidden', content.dataset.content !== tabName);
+                    });
+
+                    if (tabName === 'result') {
+                        generateResult(image);
+                    }
+                    
+                    updateActionButtons();
+                });
+            });
+
+            // 編集モード切り替え
+            panel.querySelectorAll(`[data-edit-mode]`).forEach(btn => {
+                btn.addEventListener('click', () => {
+                    if (btn.disabled) return;
+                    
+                    const mode = btn.dataset.editMode;
+                    image.editMode = mode;
+                    
+                    panel.querySelectorAll(`[data-edit-mode]`).forEach(b => {
+                        if (b.disabled) return;
+                        if (b.dataset.editMode === mode) {
+                            b.className = 'flex-1 py-2 px-4 rounded-lg font-semibold transition-colors bg-white text-gray-900';
+                        } else {
+                            b.className = 'flex-1 py-2 px-4 rounded-lg font-semibold transition-colors bg-gray-700 text-gray-300';
+                        }
+                    });
+                    
+                    drawCanvas(image.canvas, image, mode);
+                });
+            });
+
+            // 各種コントロール
+            panel.querySelector(`[data-name="${image.id}"]`).addEventListener('input', (e) => {
+                image.name = e.target.value;
+            });
+
+            panel.querySelector(`[data-zoom="${image.id}"]`).addEventListener('input', (e) => {
+                image.zoom = parseInt(e.target.value);
+                panel.querySelector(`[data-zoom-value="${image.id}"]`).textContent = `${image.zoom}%`;
+                drawCanvas(image.canvas, image, image.editMode);
+                if (image.activeTab === 'result') generateResult(image);
+            });
+
+            panel.querySelector(`[data-rotation-x="${image.id}"]`).addEventListener('input', (e) => {
+                image.rotationX = parseFloat(e.target.value);
+                panel.querySelector(`[data-rotation-x-value="${image.id}"]`).textContent = `${image.rotationX.toFixed(2)}°`;
+                panel.querySelector(`[data-rotation-x-input="${image.id}"]`).value = image.rotationX.toFixed(2);
+                drawCanvas(image.canvas, image, image.editMode);
+                if (image.activeTab === 'result') generateResult(image);
+            });
+
+            panel.querySelector(`[data-rotation-x-input="${image.id}"]`).addEventListener('input', (e) => {
+                const value = parseFloat(e.target.value);
+                if (!isNaN(value) && value >= -45 && value <= 45) {
+                    image.rotationX = value;
+                    panel.querySelector(`[data-rotation-x="${image.id}"]`).value = value;
+                    panel.querySelector(`[data-rotation-x-value="${image.id}"]`).textContent = `${value.toFixed(2)}°`;
+                    drawCanvas(image.canvas, image, image.editMode);
+                    if (image.activeTab === 'result') generateResult(image);
+                }
+            });
+
+            panel.querySelector(`[data-rotation-y="${image.id}"]`).addEventListener('input', (e) => {
+                image.rotationY = parseFloat(e.target.value);
+                panel.querySelector(`[data-rotation-y-value="${image.id}"]`).textContent = `${image.rotationY.toFixed(2)}°`;
+                panel.querySelector(`[data-rotation-y-input="${image.id}"]`).value = image.rotationY.toFixed(2);
+                drawCanvas(image.canvas, image, image.editMode);
+                if (image.activeTab === 'result') generateResult(image);
+            });
+
+            panel.querySelector(`[data-rotation-y-input="${image.id}"]`).addEventListener('input', (e) => {
+                const value = parseFloat(e.target.value);
+                if (!isNaN(value) && value >= -45 && value <= 45) {
+                    image.rotationY = value;
+                    panel.querySelector(`[data-rotation-y="${image.id}"]`).value = value;
+                    panel.querySelector(`[data-rotation-y-value="${image.id}"]`).textContent = `${value.toFixed(2)}°`;
+                    drawCanvas(image.canvas, image, image.editMode);
+                    if (image.activeTab === 'result') generateResult(image);
+                }
+            });
+
+            panel.querySelector(`[data-rotation-z="${image.id}"]`).addEventListener('input', (e) => {
+                image.rotationZ = parseFloat(e.target.value);
+                panel.querySelector(`[data-rotation-z-value="${image.id}"]`).textContent = `${image.rotationZ.toFixed(2)}°`;
+                panel.querySelector(`[data-rotation-z-input="${image.id}"]`).value = image.rotationZ.toFixed(2);
+                drawCanvas(image.canvas, image, image.editMode);
+                if (image.activeTab === 'result') generateResult(image);
+            });
+
+            panel.querySelector(`[data-rotation-z-input="${image.id}"]`).addEventListener('input', (e) => {
+                const value = parseFloat(e.target.value);
+                if (!isNaN(value) && value >= -180 && value <= 180) {
+                    image.rotationZ = value;
+                    panel.querySelector(`[data-rotation-z="${image.id}"]`).value = value;
+                    panel.querySelector(`[data-rotation-z-value="${image.id}"]`).textContent = `${value.toFixed(2)}°`;
+                    drawCanvas(image.canvas, image, image.editMode);
+                    if (image.activeTab === 'result') generateResult(image);
+                }
+            });
+
+            panel.querySelectorAll(`[data-side="${image.id}"]`).forEach(btn => {
+                btn.addEventListener('click', () => {
+                    image.side = btn.dataset.value;
+                    panel.querySelectorAll(`[data-side="${image.id}"]`).forEach(b => {
+                        b.className = 'flex-1 py-2 rounded-lg font-semibold text-sm md:text-base bg-gray-700 text-gray-300';
+                    });
+                    btn.className = 'flex-1 py-2 rounded-lg font-semibold text-sm md:text-base bg-white text-gray-900';
+                    if (image.activeTab === 'result') generateResult(image);
+                });
+            });
+
+            panel.querySelector(`[data-download="${image.id}"]`).addEventListener('click', () => {
+                if (image.generated) {
+                    const link = document.createElement('a');
+                    link.download = `${image.name}-centered.png`;
+                    link.href = image.resultCanvas.toDataURL('image/png');
+                    link.click();
+                }
+            });
+
+            setupCanvasDrag(image, panel);
+        }
+
+        function setupCanvasDrag(image, panel) {
+            const canvas = image.canvas;
+            let draggingHandle = null;
+            let dragOffset = { x: 0, y: 0 };
+
+            function getCanvasPosition(e) {
+                const rect = canvas.getBoundingClientRect();
+                let clientX, clientY;
+                
+                if (e.touches) {
+                    clientX = e.touches[0].clientX;
+                    clientY = e.touches[0].clientY;
+                } else {
+                    clientX = e.clientX;
+                    clientY = e.clientY;
+                }
+                
+                const canvasX = clientX - rect.left;
+                const canvasY = clientY - rect.top;
+                const displayWidth = rect.width;
+                const displayHeight = rect.height;
+                
+                const x = (canvasX / displayWidth) * 100;
+                const y = (canvasY / displayHeight) * 100;
+                
+                return { 
+                    x: Math.max(0, Math.min(100, x)), 
+                    y: Math.max(0, Math.min(100, y)),
+                    canvasX,
+                    canvasY
+                };
+            }
+
+            function getHandleScreenPosition(point, offset) {
+                const rect = canvas.getBoundingClientRect();
+                const displayWidth = rect.width;
+                const displayHeight = rect.height;
+                
+                const cornerX = (point.x / 100) * displayWidth;
+                const cornerY = (point.y / 100) * displayHeight;
+                
+                let offsetX = 0, offsetY = 0;
+                
+                if (point.x < 50 && point.y < 50) {
+                    offsetX = offset; offsetY = offset;
+                } else if (point.x >= 50 && point.y < 50) {
+                    offsetX = -offset; offsetY = offset;
+                } else if (point.x < 50 && point.y >= 50) {
+                    offsetX = offset; offsetY = -offset;
+                } else {
+                    offsetX = -offset; offsetY = -offset;
+                }
+                
+                return {
+                    x: cornerX + offsetX,
+                    y: cornerY + offsetY
+                };
+            }
+
+            function findHandle(pos) {
+                const threshold = 30;  // 20→30に拡大
+                const handleOffset = 35;
+                
+                if (image.editMode === 'outer') {
+                    // アウターモード：4角のハンドル
+                    const corners = ['topLeft', 'topRight', 'bottomLeft', 'bottomRight'];
+                    for (const corner of corners) {
+                        const point = image.outerCorners[corner];
+                        const handlePos = getHandleScreenPosition(point, handleOffset);
+                        
+                        const dx = pos.canvasX - handlePos.x;
+                        const dy = pos.canvasY - handlePos.y;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+                        
+                        if (distance < threshold) {
+                            return { type: 'outer', corner, handlePos };
+                        }
+                    }
+                } else if (image.editMode === 'inner') {
+                    // インナーモード：4辺の中央ハンドル（三角）
+                    const lines = calculateInnerLinePositions(image.outerCorners, image.innerLines);
+                    const canvas = image.canvas;
+                    const rect = canvas.getBoundingClientRect();
+                    const width = canvas.offsetWidth;
+                    const height = canvas.offsetHeight;
+                    
+                    const distance = 40;  // 全て40pxに統一
+                    
+                    // 各辺の中央から法線方向に距離を取った位置
+                    const topMidX = ((lines.top.start.x + lines.top.end.x) / 2 / 100) * width;
+                    const topMidY = ((lines.top.start.y + lines.top.end.y) / 2 / 100) * height;
+                    const topAngle = Math.atan2((lines.top.end.y - lines.top.start.y) / 100 * height, (lines.top.end.x - lines.top.start.x) / 100 * width);
+                    
+                    const bottomMidX = ((lines.bottom.start.x + lines.bottom.end.x) / 2 / 100) * width;
+                    const bottomMidY = ((lines.bottom.start.y + lines.bottom.end.y) / 2 / 100) * height;
+                    const bottomAngle = Math.atan2((lines.bottom.end.y - lines.bottom.start.y) / 100 * height, (lines.bottom.end.x - lines.bottom.start.x) / 100 * width);
+                    
+                    const leftMidX = ((lines.left.start.x + lines.left.end.x) / 2 / 100) * width;
+                    const leftMidY = ((lines.left.start.y + lines.left.end.y) / 2 / 100) * height;
+                    const leftAngle = Math.atan2((lines.left.end.y - lines.left.start.y) / 100 * height, (lines.left.end.x - lines.left.start.x) / 100 * width);
+                    
+                    const rightMidX = ((lines.right.start.x + lines.right.end.x) / 2 / 100) * width;
+                    const rightMidY = ((lines.right.start.y + lines.right.end.y) / 2 / 100) * height;
+                    const rightAngle = Math.atan2((lines.right.end.y - lines.right.start.y) / 100 * height, (lines.right.end.x - lines.right.start.x) / 100 * width);
+                    
+                    const edges = [
+                        { name: 'top', pos: { 
+                            x: topMidX + Math.cos(topAngle - Math.PI / 2 + Math.PI) * distance, 
+                            y: topMidY + Math.sin(topAngle - Math.PI / 2 + Math.PI) * distance
+                        }},
+                        { name: 'bottom', pos: { 
+                            x: bottomMidX + Math.cos(bottomAngle + Math.PI / 2 + Math.PI) * distance, 
+                            y: bottomMidY + Math.sin(bottomAngle + Math.PI / 2 + Math.PI) * distance
+                        }},
+                        { name: 'left', pos: { 
+                            x: leftMidX - Math.cos(leftAngle - Math.PI / 2 + Math.PI) * distance, 
+                            y: leftMidY - Math.sin(leftAngle - Math.PI / 2 + Math.PI) * distance
+                        }},
+                        { name: 'right', pos: { 
+                            x: rightMidX - Math.cos(rightAngle + Math.PI / 2 + Math.PI) * distance, 
+                            y: rightMidY - Math.sin(rightAngle + Math.PI / 2 + Math.PI) * distance
+                        }}
+                    ];
+                    
+                    for (const edge of edges) {
+                        const dx = pos.canvasX - edge.pos.x;
+                        const dy = pos.canvasY - edge.pos.y;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+                        
+                        if (distance < threshold) {
+                            return { type: 'inner', edge: edge.name, handlePos: edge.pos };
+                        }
+                    }
+                }
+                
+                return null;
+            }
+
+            canvas.addEventListener('mousedown', (e) => {
+                const pos = getCanvasPosition(e);
+                const handle = findHandle(pos);
+                
+                if (handle) {
+                    draggingHandle = handle;
+                    dragOffset.x = pos.canvasX - handle.handlePos.x;
+                    dragOffset.y = pos.canvasY - handle.handlePos.y;
+                    e.preventDefault();
+                    
+                    // アウターを初めて触った時にインナーを自動生成して有効化
+                    if (handle.type === 'outer' && !image.outerConfirmed) {
+                        image.outerConfirmed = true;
+                        
+                        image.innerLines = {
+                            top: { offset: 15 },
+                            bottom: { offset: 15 },
+                            left: { offset: 15 },
+                            right: { offset: 15 }
+                        };
+                        
+                        // インナータブを有効化
+                        const innerBtn = panel.querySelector(`[data-edit-mode="inner"][data-id="${image.id}"]`);
+                        innerBtn.disabled = false;
+                        innerBtn.className = 'flex-1 py-2 px-4 rounded-lg font-semibold transition-colors bg-gray-700 text-gray-300';
+                        
+                        // 結果を自動生成
+                        generateResult(image);
+                    }
+                }
+            });
+
+            canvas.addEventListener('mousemove', (e) => {
+                if (!draggingHandle) return;
+                e.preventDefault();
+                
+                const pos = getCanvasPosition(e);
+                const rect = canvas.getBoundingClientRect();
+                const width = rect.width;
+                const height = rect.height;
+                
+                if (draggingHandle.type === 'outer') {
+                    // アウターの角をドラッグ
+                    const point = image.outerCorners[draggingHandle.corner];
+                    const handleOffset = 35;
+                    
+                    let offsetX = 0, offsetY = 0;
+                    if (point.x < 50 && point.y < 50) {
+                        offsetX = handleOffset; offsetY = handleOffset;
+                    } else if (point.x >= 50 && point.y < 50) {
+                        offsetX = -handleOffset; offsetY = handleOffset;
+                    } else if (point.x < 50 && point.y >= 50) {
+                        offsetX = handleOffset; offsetY = -handleOffset;
+                    } else {
+                        offsetX = -handleOffset; offsetY = -handleOffset;
+                    }
+                    
+                    const cornerX = ((pos.canvasX - dragOffset.x - offsetX) / width) * 100;
+                    const cornerY = ((pos.canvasY - dragOffset.y - offsetY) / height) * 100;
+                    
+                    image.outerCorners[draggingHandle.corner] = {
+                        x: Math.max(0, Math.min(100, cornerX)),
+                        y: Math.max(0, Math.min(100, cornerY))
+                    };
+                    
+                } else if (draggingHandle.type === 'inner') {
+                    // インナーの辺をドラッグ（offset値を更新）
+                    const edge = draggingHandle.edge;
+                    const outer = image.outerCorners;
+                    
+                    // ドラッグオフセットを適用したマウス位置
+                    const adjustedX = pos.canvasX - dragOffset.x;
+                    const adjustedY = pos.canvasY - dragOffset.y;
+                    
+                    // 三角のハンドル位置からインナーライン上の位置を逆算
+                    if (edge === 'top' || edge === 'bottom') {
+                        // 上下：Y座標からoffsetを計算
+                        const lines = calculateInnerLinePositions(outer, image.innerLines);
+                        const lineMidY = ((edge === 'top' ? lines.top.start.y + lines.top.end.y : lines.bottom.start.y + lines.bottom.end.y) / 2 / 100) * height;
+                        const outerMidY = ((edge === 'top' ? outer.topLeft.y + outer.topRight.y : outer.bottomLeft.y + outer.bottomRight.y) / 2 / 100) * height;
+                        const edgeVec = edge === 'top' ? 
+                            { x: outer.topRight.x - outer.topLeft.x, y: outer.topRight.y - outer.topLeft.y } :
+                            { x: outer.bottomRight.x - outer.bottomLeft.x, y: outer.bottomRight.y - outer.bottomLeft.y };
+                        const edgeLen = Math.hypot(edgeVec.x / 100 * width, edgeVec.y / 100 * height);
+                        const edgeAngle = Math.atan2(edgeVec.y, edgeVec.x);
+                        
+                        // ハンドル位置からインナーライン上の点までの距離（法線方向）
+                        const normalAngle = edge === 'top' ? edgeAngle - Math.PI / 2 : edgeAngle + Math.PI / 2;
+                        const distance = 40;  // 40pxに統一
+                        const lineY = adjustedY - Math.sin(normalAngle + Math.PI) * distance;
+                        
+                        const distFromOuter = edge === 'top' ? lineY - outerMidY : outerMidY - lineY;
+                        const offsetPercent = (distFromOuter / edgeLen) * 100;
+                        image.innerLines[edge].offset = Math.max(0, Math.min(45, offsetPercent));
+                        
+                    } else {
+                        // 左右：X座標からoffsetを計算
+                        const lines = calculateInnerLinePositions(outer, image.innerLines);
+                        const lineMidX = ((edge === 'left' ? lines.left.start.x + lines.left.end.x : lines.right.start.x + lines.right.end.x) / 2 / 100) * width;
+                        const outerMidX = ((edge === 'left' ? outer.topLeft.x + outer.bottomLeft.x : outer.topRight.x + outer.bottomRight.x) / 2 / 100) * width;
+                        const edgeVec = edge === 'left' ?
+                            { x: outer.bottomLeft.x - outer.topLeft.x, y: outer.bottomLeft.y - outer.topLeft.y } :
+                            { x: outer.bottomRight.x - outer.topRight.x, y: outer.bottomRight.y - outer.topRight.y };
+                        const edgeLen = Math.hypot(edgeVec.x / 100 * width, edgeVec.y / 100 * height);
+                        const edgeAngle = Math.atan2(edgeVec.y, edgeVec.x);
+                        
+                        const normalAngle = edge === 'left' ? edgeAngle - Math.PI / 2 : edgeAngle + Math.PI / 2;
+                        const distance = 40;  // 40pxに統一
+                        const lineX = adjustedX + Math.cos(normalAngle + Math.PI) * distance;
+                        
+                        const distFromOuter = edge === 'left' ? lineX - outerMidX : outerMidX - lineX;
+                        const offsetPercent = Math.max(0, (distFromOuter / edgeLen) * 100);
+                        image.innerLines[edge].offset = Math.max(0, Math.min(45, offsetPercent));
+                    }
+                }
+                
+                drawCanvas(canvas, image, image.editMode);
+                if (image.activeTab === 'result') generateResult(image);
+            });
+
+            canvas.addEventListener('mouseup', () => {
+                draggingHandle = null;
+            });
+
+            canvas.addEventListener('mouseleave', () => {
+                draggingHandle = null;
+            });
+
+            // タッチイベント
+            canvas.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                const pos = getCanvasPosition(e);
+                const handle = findHandle(pos);
+                
+                if (handle) {
+                    draggingHandle = handle;
+                    dragOffset.x = pos.canvasX - handle.handlePos.x;
+                    dragOffset.y = pos.canvasY - handle.handlePos.y;
+                    
+                    // アウターを初めて触った時にインナーを自動生成して有効化
+                    if (handle.type === 'outer' && !image.outerConfirmed) {
+                        image.outerConfirmed = true;
+                        
+                        image.innerLines = {
+                            top: { offset: 15 },
+                            bottom: { offset: 15 },
+                            left: { offset: 15 },
+                            right: { offset: 15 }
+                        };
+                        
+                        // インナータブを有効化
+                        const innerBtn = panel.querySelector(`[data-edit-mode="inner"][data-id="${image.id}"]`);
+                        innerBtn.disabled = false;
+                        innerBtn.className = 'flex-1 py-2 px-4 rounded-lg font-semibold transition-colors bg-gray-700 text-gray-300';
+                        
+                        // 結果を自動生成
+                        generateResult(image);
+                    }
+                }
+            }, { passive: false });
+
+            canvas.addEventListener('touchmove', (e) => {
+                if (!draggingHandle) return;
+                e.preventDefault();
+                
+                const pos = getCanvasPosition(e);
+                const rect = canvas.getBoundingClientRect();
+                const width = rect.width;
+                const height = rect.height;
+                
+                if (draggingHandle.type === 'outer') {
+                    const point = image.outerCorners[draggingHandle.corner];
+                    const handleOffset = 35;
+                    
+                    let offsetX = 0, offsetY = 0;
+                    if (point.x < 50 && point.y < 50) {
+                        offsetX = handleOffset; offsetY = handleOffset;
+                    } else if (point.x >= 50 && point.y < 50) {
+                        offsetX = -handleOffset; offsetY = handleOffset;
+                    } else if (point.x < 50 && point.y >= 50) {
+                        offsetX = handleOffset; offsetY = -handleOffset;
+                    } else {
+                        offsetX = -handleOffset; offsetY = -handleOffset;
+                    }
+                    
+                    const cornerX = ((pos.canvasX - dragOffset.x - offsetX) / width) * 100;
+                    const cornerY = ((pos.canvasY - dragOffset.y - offsetY) / height) * 100;
+                    
+                    image.outerCorners[draggingHandle.corner] = {
+                        x: Math.max(0, Math.min(100, cornerX)),
+                        y: Math.max(0, Math.min(100, cornerY))
+                    };
+                    
+                } else if (draggingHandle.type === 'inner') {
+                    const edge = draggingHandle.edge;
+                    const outer = image.outerCorners;
+                    
+                    // ドラッグオフセットを適用したマウス位置
+                    const adjustedX = pos.canvasX - dragOffset.x;
+                    const adjustedY = pos.canvasY - dragOffset.y;
+                    
+                    if (edge === 'top' || edge === 'bottom') {
+                        const lines = calculateInnerLinePositions(outer, image.innerLines);
+                        const outerMidY = ((edge === 'top' ? outer.topLeft.y + outer.topRight.y : outer.bottomLeft.y + outer.bottomRight.y) / 2 / 100) * height;
+                        const edgeVec = edge === 'top' ? 
+                            { x: outer.topRight.x - outer.topLeft.x, y: outer.topRight.y - outer.topLeft.y } :
+                            { x: outer.bottomRight.x - outer.bottomLeft.x, y: outer.bottomRight.y - outer.bottomLeft.y };
+                        const edgeLen = Math.hypot(edgeVec.x / 100 * width, edgeVec.y / 100 * height);
+                        const edgeAngle = Math.atan2(edgeVec.y, edgeVec.x);
+                        const normalAngle = edge === 'top' ? edgeAngle - Math.PI / 2 : edgeAngle + Math.PI / 2;
+                        const distance = 40;  // 40pxに統一
+                        const lineY = adjustedY - Math.sin(normalAngle + Math.PI) * distance;
+                        const distFromOuter = edge === 'top' ? lineY - outerMidY : outerMidY - lineY;
+                        const offsetPercent = (distFromOuter / edgeLen) * 100;
+                        image.innerLines[edge].offset = Math.max(0, Math.min(45, offsetPercent));
+                    } else {
+                        const lines = calculateInnerLinePositions(outer, image.innerLines);
+                        const outerMidX = ((edge === 'left' ? outer.topLeft.x + outer.bottomLeft.x : outer.topRight.x + outer.bottomRight.x) / 2 / 100) * width;
+                        const edgeVec = edge === 'left' ?
+                            { x: outer.bottomLeft.x - outer.topLeft.x, y: outer.bottomLeft.y - outer.topLeft.y } :
+                            { x: outer.bottomRight.x - outer.topRight.x, y: outer.bottomRight.y - outer.topRight.y };
+                        const edgeLen = Math.hypot(edgeVec.x / 100 * width, edgeVec.y / 100 * height);
+                        const edgeAngle = Math.atan2(edgeVec.y, edgeVec.x);
+                        const normalAngle = edge === 'left' ? edgeAngle - Math.PI / 2 : edgeAngle + Math.PI / 2;
+                        const distance = 40;  // 40pxに統一
+                        const lineX = adjustedX + Math.cos(normalAngle + Math.PI) * distance;
+                        const distFromOuter = edge === 'left' ? lineX - outerMidX : outerMidX - lineX;
+                        const offsetPercent = Math.max(0, (distFromOuter / edgeLen) * 100);
+                        image.innerLines[edge].offset = Math.max(0, Math.min(45, offsetPercent));
+                    }
+                }
+                
+                drawCanvas(canvas, image, image.editMode);
+                if (image.activeTab === 'result') generateResult(image);
+            }, { passive: false });
+
+            canvas.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                draggingHandle = null;
+            }, { passive: false });
+        }
+
+        // 一括ダウンロード
+        document.getElementById('downloadAll').addEventListener('click', () => {
+            images.forEach((image, index) => {
+                if (image.generated) {
+                    setTimeout(() => {
+                        const link = document.createElement('a');
+                        link.download = `${image.name}-centered.png`;
+                        link.href = image.resultCanvas.toDataURL('image/png');
+                        link.click();
+                    }, index * 200);
+                }
+            });
+        });
+
+        // リセット
+        document.getElementById('resetAll').addEventListener('click', () => {
+            if (confirm('すべての画像をリセットしますか？')) {
+                images = [];
+                document.getElementById('imagePanels').innerHTML = '';
+                document.getElementById('actionButtons').classList.add('hidden');
+                // ファイル入力をリセット（同じファイルを再アップロード可能にする）
+                document.getElementById('imageUpload').value = '';
+            }
+        });
+    </script>
+</body>
+</html>

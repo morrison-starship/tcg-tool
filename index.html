@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="TCGツールズはトレーディングカード愛好者向けの無料Webツール集です。カードのセンタリング測定、オリパの封入額・還元率計算など、カードライフをサポートするツールを無料で提供します。">
+    <meta name="keywords" content="TCG,トレーディングカード,センタリング,オリパ,計算,無料ツール,PSA,BGS,CGC">
+    <meta name="robots" content="index, follow">
+    <title>Free TCG Tools</title>
+    <meta property="og:title" content="Free TCG Tools">
+    <meta property="og:description" content="センタリングチェッカー・オリパ計算機など、TCG向け無料ツールを提供しています。">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://tcg-tool.com/">
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-HNPFE6Q6HL"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-HNPFE6Q6HL');
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital@0;1&family=M+PLUS+1:wght@200;300;400&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg: #fafaf8;
+            --white: #ffffff;
+            --border: #e4e4df;
+            --text: #111110;
+            --muted: #8a8a82;
+            --light: #f2f2ee;
+        }
+
+        html { font-size: 16px; }
+
+        body {
+            background: var(--bg);
+            font-family: 'Noto Sans JP', sans-serif;
+            color: var(--text);
+            min-height: 100vh;
+            font-weight: 300;
+        }
+
+        /* ── HEADER ── */
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: var(--bg);
+            border-bottom: 1px solid var(--border);
+        }
+        .hdr {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 32px;
+            height: 52px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .site-id {
+            font-family: 'Libre Baskerville', serif;
+            font-size: 17px;
+            color: var(--text);
+            text-decoration: none;
+            letter-spacing: 0.01em;
+        }
+        .hdr-links {
+            display: flex;
+            gap: 24px;
+        }
+        .hdr-links a {
+            font-size: 12px;
+            color: var(--muted);
+            text-decoration: none;
+            font-weight: 400;
+        }
+        .hdr-links a:hover { color: var(--text); }
+
+        /* ── WRAP ── */
+        .wrap {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 32px;
+        }
+
+        /* ── HERO ── */
+        .hero {
+            padding: 64px 0 48px;
+        }
+        .hero-title {
+            font-family: 'Libre Baskerville', serif;
+            font-size: clamp(32px, 5vw, 56px);
+            font-weight: 400;
+            line-height: 1.0;
+            letter-spacing: -0.02em;
+            color: var(--text);
+            margin-bottom: 20px;
+            white-space: nowrap;
+        }
+        .hero-sub {
+            font-size: 14px;
+            color: var(--muted);
+            font-weight: 300;
+            line-height: 1;
+            letter-spacing: 0.05em;
+        }
+
+        /* ── DIVIDER ── */
+        .divider {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 0;
+        }
+
+        /* ── TOOLS ── */
+        .tools-section {
+            padding: 40px 0;
+        }
+        .tools-head {
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
+            margin-bottom: 32px;
+        }
+        .tools-head-label {
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+        .tools-head-count {
+            font-size: 11px;
+            color: var(--border);
+        }
+
+        .tool-row {
+            display: grid;
+            grid-template-columns: 48px 1fr 80px;
+            align-items: start;
+            gap: 0 24px;
+            padding: 32px 0;
+            border-top: 1px solid var(--border);
+            text-decoration: none;
+            color: inherit;
+            cursor: pointer;
+            border-left: 3px solid transparent;
+            padding-left: 20px;
+            margin-left: -23px;
+            transition: border-color 0.15s;
+        }
+        .tool-row:last-child {
+            border-bottom: 1px solid var(--border);
+        }
+        .tool-row:hover {
+            border-left-color: var(--text);
+        }
+        .tool-row:hover .tool-row-name {
+            text-decoration: underline;
+            text-underline-offset: 5px;
+        }
+        .tool-row:hover .tool-row-arrow {
+            transform: translateX(4px);
+        }
+
+        .tool-row-num {
+            font-size: 12px;
+            color: var(--muted);
+            font-weight: 400;
+            padding-top: 3px;
+            letter-spacing: 0.05em;
+        }
+        .tool-row-body {}
+        .tool-row-name {
+            font-family: 'M PLUS 1', sans-serif;
+            font-size: 26px;
+            font-weight: 300;
+            line-height: 1.2;
+            margin-bottom: 10px;
+            letter-spacing: 0.02em;
+            color: var(--text);
+        }
+        .tool-row-desc {
+            font-size: 13px;
+            color: var(--muted);
+            line-height: 1.75;
+            font-weight: 300;
+            max-width: 520px;
+            margin-bottom: 16px;
+        }
+        .tool-row-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .tool-tag {
+            font-size: 11px;
+            color: var(--muted);
+            background: var(--light);
+            padding: 3px 10px;
+            letter-spacing: 0.03em;
+            font-weight: 400;
+        }
+        .centering .tool-tag {
+            color: #4f7ef7;
+            background: #eef2ff;
+        }
+        .oripa .tool-tag {
+            color: #2db87a;
+            background: #edfaf4;
+        }
+        .tool-row-arrow {
+            font-size: 20px;
+            color: var(--muted);
+            text-align: right;
+            padding-top: 2px;
+            transition: transform 0.15s ease;
+        }
+
+        /* ── FEATURES ── */
+        .features-section {
+            padding: 64px 0;
+            border-top: 1px solid var(--border);
+        }
+        .features-label {
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 40px;
+        }
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2px;
+        }
+        .feature-box {
+            background: var(--white);
+            border: 1px solid var(--border);
+            padding: 28px 28px 32px;
+        }
+        .feature-box:not(:first-child) {
+            border-left: none;
+        }
+        .feature-title {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text);
+            margin-bottom: 10px;
+        }
+        .feature-desc {
+            font-size: 13px;
+            color: var(--muted);
+            line-height: 1.75;
+            font-weight: 300;
+        }
+
+        /* ── FOOTER ── */
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 32px;
+        }
+        .footer-in {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .footer-copy {
+            font-size: 12px;
+            color: var(--muted);
+            font-weight: 300;
+        }
+        .footer-nav {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .footer-nav a {
+            font-size: 12px;
+            color: var(--muted);
+            text-decoration: none;
+        }
+        .footer-nav a:hover { color: var(--text); }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 680px) {
+            .hdr { padding: 0 20px; }
+            .wrap { padding: 0 20px; }
+            .hero { padding: 64px 0 56px; }
+            .hero-title { font-size: clamp(44px, 12vw, 72px); }
+            .tool-row { grid-template-columns: 36px 1fr 40px; gap: 0 12px; }
+            .tool-row-name { font-size: 18px; }
+            .features-grid { grid-template-columns: 1fr; gap: 2px; }
+            .feature-box:not(:first-child) { border-left: 1px solid var(--border); border-top: none; }
+            .hdr-links { display: none; }
+            footer { padding: 24px 20px; }
+            .footer-in { flex-direction: column; align-items: flex-start; gap: 16px; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="hdr">
+        <a class="site-id" href="/">Free TCG Tools</a>
+        <nav class="hdr-links">
+            <a href="about.html">運営者情報</a>
+            <a href="contact.html">お問い合わせ</a>
+        </nav>
+    </div>
+</header>
+
+<div class="wrap">
+
+    <!-- HERO -->
+    <section class="hero">
+        <h1 class="hero-title">Free TCG Tools</h1>
+        <p class="hero-sub">トレカ向け・無料・登録不要</p>
+    </section>
+
+    <!-- TOOLS -->
+    <section class="tools-section">
+        <div class="tools-head">
+            <span class="tools-head-label">ツール一覧</span>
+            <span class="tools-head-count">2</span>
+        </div>
+
+        <a class="tool-row" href="centering/">
+            <span class="tool-row-num">01</span>
+            <div class="tool-row-body">
+                <p class="tool-row-name">センタリングチェッカー</p>
+                <p class="tool-row-desc">カードのセンタリングをPSA・BGS・CGC基準で測定。画像をアップロードするだけで予想グレードを確認できます。</p>
+                <div class="tool-row-tags">
+                    <span class="tool-tag">PSA</span>
+                    <span class="tool-tag">BGS</span>
+                    <span class="tool-tag">CGC</span>
+                    <span class="tool-tag">画像処理はブラウザ内</span>
+                </div>
+            </div>
+            <span class="tool-row-arrow">→</span>
+        </a>
+
+        <a class="tool-row" href="oripa/">
+            <span class="tool-row-num">02</span>
+            <div class="tool-row-body">
+                <p class="tool-row-name">オリパ計算機</p>
+                <p class="tool-row-desc">封入額・還元率・期待値・利益率をリアルタイムで計算。オリパ制作者にもプレイヤーにも使えるシミュレーター。</p>
+                <div class="tool-row-tags">
+                    <span class="tool-tag">還元率</span>
+                    <span class="tool-tag">期待値</span>
+                    <span class="tool-tag">利益率シミュレーション</span>
+                </div>
+            </div>
+            <span class="tool-row-arrow">→</span>
+        </a>
+
+    </section>
+
+    <!-- FEATURES -->
+    <section class="features-section">
+        <p class="features-label">特徴</p>
+        <div class="features-grid">
+            <div class="feature-box">
+                <p class="feature-title">完全無料</p>
+                <p class="feature-desc">全機能を無料でご利用いただけます。</p>
+            </div>
+            <div class="feature-box">
+                <p class="feature-title">データ送信なし</p>
+                <p class="feature-desc">画像・入力データはすべてブラウザ内で処理。サーバーには送信されません。</p>
+            </div>
+            <div class="feature-box">
+                <p class="feature-title">登録不要</p>
+                <p class="feature-desc">アカウント登録やインストールは不要。すぐ使えます。</p>
+            </div>
+        </div>
+    </section>
+
+</div>
+
+<footer>
+    <div class="footer-in">
+        <p class="footer-copy">© 2026 cardgamer819</p>
+        <nav class="footer-nav">
+            <a href="terms.html">利用規約</a>
+            <a href="privacy.html">プライバシーポリシー</a>
+            <a href="contact.html">お問い合わせ</a>
+            <a href="about.html">運営者情報</a>
+        </nav>
+    </div>
+</footer>
+
+</body>
+</html>

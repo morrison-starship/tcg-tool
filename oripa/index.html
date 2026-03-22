@@ -1,0 +1,1651 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>オリパ計算ツール | 封入額・還元率・利益率シミュレーション無料</title>
+<meta name="description" content="オリパ（オリジナルパック）の封入額・還元率・期待値・利益率を無料で計算・シミュレーションできるツール。制作者もプレイヤーも活用できる多機能オリパ計算機。">
+<meta name="keywords" content="オリパ,計算,還元率,封入額,期待値,利益率,シミュレーター,無料">
+<meta name="robots" content="index, follow">
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-HNPFE6Q6HL"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-HNPFE6Q6HL');
+    </script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ── RESET ── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
+input[type=number]{-moz-appearance:textfield}
+
+/* ── TOKENS ── */
+:root{
+  --w:#fff;
+  --g50:#f8fafc;--g100:#f1f5f9;--g150:#edf2f7;--g200:#e2e8f0;
+  --g300:#cbd5e1;--g400:#94a3b8;--g500:#64748b;
+  --g600:#475569;--g700:#334155;--g800:#1e293b;--g900:#0f172a;
+
+  --ind:#6366f1;--ind-d:#4f46e5;--ibg:#eef2ff;--ibdr:#c7d2fe;
+  --grn:#10b981;--gbg:#ecfdf5;--gbdr:#a7f3d0;
+  --amb:#f59e0b;--abg:#fffbeb;--abdr:#fde68a;
+  --red:#ef4444;--rbg:#fef2f2;--rbdr:#fecaca;
+
+  --rsm:6px;--rmd:10px;--rlg:14px;--rxl:18px;
+  --s1:0 1px 3px rgba(15,23,42,.07);
+  --s2:0 4px 12px rgba(15,23,42,.09),0 1px 3px rgba(15,23,42,.05);
+  --s3:0 8px 24px rgba(15,23,42,.12),0 2px 6px rgba(15,23,42,.06);
+  --sx:0 20px 48px rgba(15,23,42,.16),0 4px 12px rgba(15,23,42,.08);
+}
+
+html{scroll-behavior:smooth}
+body{
+  background:var(--g50);
+  font-family:'DM Sans','Noto Sans JP','Hiragino Kaku Gothic ProN',sans-serif;
+  color:var(--g900);min-height:100vh;
+  -webkit-tap-highlight-color:transparent;
+  line-height:1.5;font-size:14px;
+}
+.mono{font-family:'DM Mono',monospace}
+
+/* ── LAYOUT ── */
+.pg{max-width:1060px;margin:0 auto;padding:0 20px}
+@media(max-width:680px){.pg{padding:0 12px}}
+
+/* ── HEADER ── */
+.site-hdr{
+  background:var(--w);border-bottom:1px solid var(--g200);
+  position:sticky;top:0;z-index:100;
+}
+.hdr-inner{display:flex;align-items:center;justify-content:space-between;height:52px}
+.logo{display:flex;align-items:baseline;gap:7px;text-decoration:none;color:inherit}
+.logo-mark{font-family:'DM Sans',sans-serif;font-weight:700;font-size:16px;letter-spacing:-.3px}
+.logo-mark em{color:var(--ind);font-style:normal}
+.logo-sep{color:var(--g300)}
+.logo-sub{font-size:12px;color:var(--g500);font-weight:400}
+.hdr-r{display:flex;align-items:center;gap:7px}
+.badge{font-size:10px;font-weight:600;letter-spacing:.4px;padding:2px 8px;border-radius:20px;background:var(--gbg);color:var(--grn);border:1px solid var(--gbdr)}
+.btn-rst{
+  display:flex;align-items:center;gap:4px;
+  background:var(--w);border:1px solid var(--g200);color:var(--g600);
+  border-radius:var(--rmd);padding:5px 11px;font-size:12px;font-weight:500;
+  cursor:pointer;font-family:inherit;transition:all .12s;white-space:nowrap;
+}
+.btn-rst:hover{background:var(--rbg);border-color:var(--rbdr);color:var(--red)}
+@media(max-width:480px){.logo-sub,.badge{display:none}}
+
+/* ── TABS ── */
+.tab-wrap{background:var(--w);border-bottom:1px solid var(--g200);position:sticky;top:52px;z-index:99}
+.tab-list{display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tab-list::-webkit-scrollbar{display:none}
+.tab-btn{
+  flex-shrink:0;display:flex;align-items:center;gap:5px;
+  background:transparent;border:none;color:var(--g500);
+  padding:0 16px;height:42px;
+  font-family:inherit;font-size:13px;font-weight:500;
+  cursor:pointer;border-bottom:2px solid transparent;
+  transition:color .12s,border-color .12s;white-space:nowrap;
+}
+.tab-btn:hover{color:var(--g800)}
+.tab-btn.active{color:var(--ind);border-bottom-color:var(--ind);font-weight:600}
+@media(max-width:480px){.tab-btn{padding:0 12px;font-size:12px}}
+
+/* ── MAIN ── */
+.main{padding:20px 0 48px}
+@media(max-width:680px){.main{padding:14px 0 36px}}
+
+/* ── CARD ── */
+.card{background:var(--w);border:1px solid var(--g200);border-radius:var(--rxl);box-shadow:var(--s1)}
+.cp{padding:18px}
+@media(max-width:680px){.cp{padding:14px}}
+.divider{height:1px;background:var(--g100);margin:14px 0}
+
+/* ── STEP BADGE ── */
+.step-badge{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:20px;height:20px;border-radius:50%;
+  background:var(--ind);color:#fff;
+  font-size:11px;font-weight:700;flex-shrink:0;
+}
+.step-hdr{
+  display:flex;align-items:center;gap:8px;
+  margin-bottom:13px;
+}
+.step-title{font-size:12px;font-weight:700;color:var(--g700);letter-spacing:.3px}
+.step-hint{font-size:11px;color:var(--g400);margin-left:auto}
+
+/* ── FIELD ── */
+.field{display:flex;flex-direction:column;gap:4px}
+.flbl{
+  font-size:11px;font-weight:600;color:var(--g500);
+  display:flex;align-items:center;gap:4px;letter-spacing:.2px;
+}
+.iw{
+  display:flex;align-items:center;
+  background:var(--w);border:1.5px solid var(--g200);
+  border-radius:var(--rmd);overflow:hidden;
+  transition:border-color .12s,box-shadow .12s,background .12s;
+}
+.iw:focus-within{
+  border-color:var(--ind);
+  box-shadow:0 0 0 3px rgba(99,102,241,.1);
+  background:#fafbff;
+}
+.iw input{
+  flex:1;min-width:0;background:transparent;border:none;
+  color:var(--g900);padding:8px 11px;
+  font-size:15px;font-weight:500;outline:none;
+  font-family:'DM Mono',monospace;text-align:right;
+}
+.iw input[type=text]{
+  text-align:left;
+  font-family:'DM Sans','Noto Sans JP',sans-serif;
+  font-size:13px;font-weight:400;
+}
+.iw input::placeholder{color:var(--g300);font-size:13px;font-family:'DM Sans',sans-serif;font-weight:400}
+.iw .unit{padding:0 11px 0 2px;font-size:12px;color:var(--g400);white-space:nowrap;font-weight:500}
+.disp{
+  background:var(--g50);border:1.5px solid var(--g200);
+  border-radius:var(--rmd);padding:8px 11px;
+  text-align:right;font-family:'DM Mono',monospace;
+  font-size:17px;font-weight:600;color:var(--g300);
+  transition:color .3s,background .3s;
+}
+.disp.on{color:var(--g900);background:var(--w)}
+
+/* Tooltip */
+.tip{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:14px;height:14px;border-radius:50%;
+  background:var(--g100);font-size:9px;font-weight:700;
+  color:var(--g400);cursor:help;vertical-align:middle;position:relative;
+}
+.tip::after{
+  content:attr(data-tip);
+  position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);
+  background:var(--g900);color:var(--w);
+  border-radius:var(--rsm);padding:5px 9px;
+  font-size:11px;font-weight:400;width:max-content;max-width:190px;
+  line-height:1.5;z-index:200;pointer-events:none;
+  opacity:0;transition:opacity .12s;
+  font-family:'DM Sans',sans-serif;box-shadow:var(--s3);
+}
+.tip:hover::after{opacity:1}
+
+/* Buttons */
+.sq-btn{
+  display:flex;align-items:center;justify-content:center;
+  background:var(--w);border:1.5px solid var(--g200);color:var(--g600);
+  border-radius:var(--rmd);cursor:pointer;transition:all .12s;
+  flex-shrink:0;padding:0;font-family:inherit;
+}
+.sq-btn:hover{background:var(--g50);border-color:var(--g300)}
+.sq-btn:active{transform:scale(.88)}
+.sq-btn:disabled{opacity:.3;cursor:default;transform:none}
+
+.del-btn{
+  background:transparent;border:1.5px solid var(--g200);color:var(--g400);
+  border-radius:var(--rsm);padding:0;width:28px;height:28px;font-size:13px;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .12s;flex-shrink:0;
+}
+.del-btn:hover{background:var(--rbg);border-color:var(--rbdr);color:var(--red)}
+
+.add-row{
+  display:flex;align-items:center;justify-content:center;gap:5px;
+  background:var(--w);border:1.5px dashed var(--g200);color:var(--g400);
+  border-radius:var(--rmd);padding:7px 14px;font-size:12px;font-weight:500;
+  cursor:pointer;width:100%;margin-top:8px;transition:all .12s;font-family:inherit;
+}
+.add-row:hover{border-color:var(--ind);color:var(--ind);background:var(--ibg)}
+
+.btn-pri{
+  display:flex;align-items:center;gap:5px;
+  background:var(--ind);border:none;border-radius:var(--rmd);
+  color:#fff;font-family:inherit;font-size:13px;font-weight:600;
+  padding:8px 18px;cursor:pointer;transition:background .12s,transform .08s;
+}
+.btn-pri:hover{background:var(--ind-d)}
+.btn-pri:active{transform:scale(.97)}
+.btn-pri.ok{background:var(--grn)}
+
+.btn-gh{
+  font-size:12px;padding:7px 13px;
+  background:var(--w);border:1.5px solid var(--g200);color:var(--g500);
+  border-radius:var(--rmd);cursor:pointer;font-family:inherit;font-weight:500;transition:all .12s;
+}
+.btn-gh:hover{border-color:var(--g300);color:var(--g700)}
+
+/* ── HINT / WARN ── */
+.hint-box{
+  font-size:11px;color:var(--g500);line-height:1.6;
+  padding:7px 10px;background:var(--g50);
+  border-radius:var(--rsm);border:1px solid var(--g200);margin-top:7px;
+}
+.warn-box{
+  font-size:11px;color:#92400e;background:var(--abg);
+  border:1px solid var(--abdr);border-radius:var(--rsm);
+  padding:7px 10px;margin-top:7px;line-height:1.55;
+}
+.advice-box{
+  font-size:12px;line-height:1.75;color:var(--g600);
+  padding:9px 11px;border-radius:var(--rmd);
+  border-left:3px solid var(--g200);background:var(--g50);
+  transition:border-color .3s;margin-top:10px;
+}
+.empty-hint{padding:16px 0;text-align:center;color:var(--g400);font-size:12px;font-weight:500}
+
+/* ── CALC LAYOUT ── */
+/* Desktop: 240px | flex | 240px */
+.calc-grid{
+  display:grid;
+  grid-template-columns:240px 1fr 240px;
+  gap:16px;align-items:start;
+}
+.left-col{display:flex;flex-direction:column;gap:12px}
+.ctr-col{display:flex;flex-direction:column;gap:10px}
+.rgt-col{display:flex;flex-direction:column;gap:12px;position:sticky;top:110px;align-self:start}
+
+/* Mid: 2col left+center */
+@media(max-width:940px){
+  .calc-grid{grid-template-columns:220px 1fr;grid-template-areas:"lf ct" "rg rg"}
+  .left-col{grid-area:lf}
+  .ctr-col{grid-area:ct}
+  .rgt-col{grid-area:rg;display:grid;grid-template-columns:1fr 1fr;gap:12px;position:static;align-self:auto}
+}
+/* Mobile: single col */
+@media(max-width:680px){
+  .calc-grid{grid-template-columns:1fr;grid-template-areas:"rg" "lf" "ct"}
+  .left-col{grid-area:lf}
+  .ctr-col{grid-area:ct}
+  .rgt-col{grid-area:rg;display:grid;grid-template-columns:1fr 1fr;gap:10px;position:static;align-self:auto}
+  .rg-hide-empty{display:none}
+  .r-dt{display:none!important}
+}
+@media(min-width:681px){.r-mb{display:none!important}}
+@media(min-width:941px){.rgt-col{display:flex!important;flex-direction:column!important;grid-template-columns:unset!important;position:sticky!important;top:110px!important;align-self:start!important}}
+
+/* Tier count display */
+#tc{
+  font-family:'DM Mono',monospace;font-size:44px;font-weight:500;
+  color:var(--ind);line-height:1;text-align:center;letter-spacing:-2px;
+}
+
+/* ── TIER CARDS ── */
+.tier-card{
+  border:1.5px solid var(--g200);border-radius:var(--rxl);background:var(--w);
+  overflow:hidden;transition:box-shadow .18s,border-color .18s;box-shadow:var(--s1);
+}
+.tier-card:hover{box-shadow:var(--s2);border-color:var(--g300)}
+.tier-hdr{
+  display:flex;align-items:stretch;min-height:40px;
+  border-bottom:1px solid var(--g100);background:var(--g50);
+}
+.t-accent{width:4px;flex-shrink:0}
+.t-badge-wrap{display:flex;align-items:center;padding:0 9px 0 11px;flex-shrink:0}
+.t-badge{font-size:11px;font-weight:600;padding:2px 9px;border-radius:20px;white-space:nowrap;letter-spacing:.3px}
+.tier-tabs{display:flex;align-items:stretch;flex:1;min-width:0}
+.ttab{
+  background:transparent;border:none;border-bottom:2px solid transparent;
+  color:var(--g400);padding:0 10px;
+  font-family:inherit;font-size:12px;font-weight:400;
+  cursor:pointer;transition:color .1s,border-color .1s;white-space:nowrap;
+  display:flex;align-items:center;
+}
+.ttab.on{font-weight:600}
+.t-auto{display:flex;align-items:center;flex:1;padding-left:4px;font-size:11px;color:var(--g400);font-style:italic}
+.t-del-wrap{display:flex;align-items:center;margin-left:auto;padding-right:9px;flex-shrink:0}
+
+/* Tier body: summary left | inputs right */
+.tier-body{display:grid;grid-template-columns:140px 1fr}
+.t-sum{padding:12px;border-right:1px solid var(--g100)}
+.t-inp{padding:12px}
+@media(max-width:680px){
+  .tier-body{grid-template-columns:1fr}
+  .t-sum{border-right:none;border-bottom:1px solid var(--g100);padding:10px 12px}
+  .sum-row{display:flex;gap:12px;flex-wrap:wrap}
+  .sum-row>div{flex:1;min-width:65px}
+  .t-inp{padding:10px 12px}
+  .ttab{padding:0 8px;font-size:11px}
+}
+
+/* Table (detail mode) */
+table{width:100%;border-collapse:collapse}
+th{font-size:10px;color:var(--g400);font-weight:600;text-transform:uppercase;letter-spacing:.7px;padding:3px 5px 5px;text-align:left;border-bottom:1px solid var(--g100)}
+td{padding:4px 5px;vertical-align:middle}
+tbody tr:not(:last-child) td{border-bottom:1px solid var(--g50)}
+
+/* ── GAUGE (persistent SVG, not rebuilt) ── */
+.gauge-card{
+  background:var(--w);border:1.5px solid var(--g200);border-radius:var(--rxl);
+  padding:18px;box-shadow:var(--s1);transition:border-color .4s;
+}
+.gauge-arc{fill:none;stroke-width:10;stroke-linecap:round;transition:stroke-dashoffset .65s cubic-bezier(.4,0,.2,1),stroke .4s}
+.gauge-track{fill:none;stroke:var(--g100);stroke-width:10;stroke-linecap:round}
+
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:12px}
+.stat-box{background:var(--g50);border:1px solid var(--g100);border-radius:var(--rmd);padding:9px 11px}
+.stat-lbl{font-size:10px;font-weight:600;color:var(--g400);letter-spacing:.5px;text-transform:uppercase;margin-bottom:2px}
+.stat-val{font-family:'DM Mono',monospace;font-size:14px;font-weight:500;color:var(--g900);transition:color .3s;line-height:1.2}
+.stat-val.dim{color:var(--g300)}
+
+.rate-track{height:4px;background:var(--g100);border-radius:2px;overflow:hidden;margin:7px 0 3px}
+.rate-fill{height:100%;border-radius:2px;transition:width .6s cubic-bezier(.4,0,.2,1),background .4s}
+
+/* ── SECTION LABEL ── */
+.sec-lbl{
+  font-size:10px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;
+  color:var(--g400);margin-bottom:12px;
+  display:flex;align-items:center;gap:6px;
+}
+.sec-lbl::after{content:'';flex:1;height:1px;background:var(--g100)}
+
+/* ── SIMULATOR ── */
+.card-scene{perspective:700px;flex-shrink:0}
+.card-scene.lg{width:130px;height:182px}
+.card-scene.md{width:90px;height:126px}
+.card-scene.sm{width:68px;height:95px}
+.card-flipper{
+  width:100%;height:100%;position:relative;transform-style:preserve-3d;
+  transition:transform .5s cubic-bezier(.4,0,.2,1);
+}
+.card-scene.rare .card-flipper{transition:transform .72s cubic-bezier(.4,0,.2,1)}
+.card-scene.flipped .card-flipper{transform:rotateY(180deg)}
+.card-face{position:absolute;inset:0;border-radius:10px;backface-visibility:hidden;-webkit-backface-visibility:hidden;overflow:hidden}
+.card-front{transform:rotateY(180deg)}
+
+/* Rare effects */
+@keyframes rareRing{0%{opacity:0;transform:scale(.7)}40%{opacity:1;transform:scale(1.08)}70%{opacity:.8;transform:scale(1)}100%{opacity:0;transform:scale(1.15)}}
+.rare-ring{position:absolute;inset:-8px;border-radius:14px;pointer-events:none;z-index:10;opacity:0}
+.card-scene.rare .rare-ring.burst{animation:rareRing .85s ease forwards}
+@keyframes shineSweep{0%{transform:translateX(-100%) skewX(-20deg);opacity:0}30%{opacity:.55}100%{transform:translateX(220%) skewX(-20deg);opacity:0}}
+.card-shine{position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);width:60%;top:0;bottom:0;z-index:8;border-radius:10px;pointer-events:none;opacity:0}
+.card-scene.rare .card-shine.sweep{animation:shineSweep .7s .38s ease forwards}
+
+/* Spotlight */
+@keyframes spotIn{from{opacity:0}to{opacity:1}}
+@keyframes cardPop{0%{transform:scale(.5) rotateY(90deg);opacity:0}60%{transform:scale(1.06) rotateY(0);opacity:1}80%{transform:scale(.97)}100%{transform:scale(1)}}
+.spotlight{position:fixed;inset:0;z-index:500;display:flex;align-items:center;justify-content:center;background:rgba(15,23,42,.82);backdrop-filter:blur(4px);animation:spotIn .18s ease;cursor:pointer}
+.spot-card{position:relative;filter:drop-shadow(0 0 40px var(--gc,#6366f1))}
+.spot-inner{animation:cardPop .5s .08s both}
+.spot-lbl{margin-top:14px;text-align:center;color:#fff;font-family:'DM Sans',sans-serif;font-weight:700;font-size:16px;letter-spacing:.3px;text-shadow:0 2px 12px rgba(0,0,0,.5)}
+.spot-hint{margin-top:5px;text-align:center;font-size:12px;color:rgba(255,255,255,.45)}
+@keyframes cfFall{0%{transform:translateY(-20px) rotate(0deg);opacity:1}100%{transform:translateY(180px) rotate(720deg);opacity:0}}
+.cf-p{animation:cfFall var(--d,.8s) var(--dl,0s) ease both;pointer-events:none;position:absolute}
+
+.draw-zone{
+  background:var(--g50);border:1.5px solid var(--g200);
+  border-radius:var(--rxl);padding:20px 14px;
+  min-height:210px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:10px;
+}
+.cards-grid{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;width:100%}
+
+.pull-actions{display:flex;flex-direction:column;gap:9px;align-items:center;margin-top:14px}
+.pull-main{display:flex;gap:9px;justify-content:center;flex-wrap:wrap}
+.pull-sub{display:flex;gap:7px;justify-content:center}
+.pull-btn{font-family:'DM Sans',sans-serif;font-weight:600;border:none;border-radius:var(--rlg);cursor:pointer;letter-spacing:.2px;transition:transform .1s,opacity .1s}
+.pull-btn:active{transform:scale(.95)}
+.pb10{font-size:15px;padding:12px 30px;background:linear-gradient(135deg,#7c3aed,#6366f1);color:#fff;box-shadow:0 4px 14px rgba(99,102,241,.35)}
+.pb100{font-size:15px;padding:12px 30px;background:linear-gradient(135deg,#d97706,#f59e0b);color:#fff;box-shadow:0 4px 14px rgba(245,158,11,.3)}
+.pb1{font-size:13px;padding:8px 18px;background:var(--w);border:1.5px solid var(--g200);color:var(--g600);box-shadow:var(--s1)}
+.pb1:hover{border-color:var(--ind);color:var(--ind)}
+
+.sim-stats{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:10px}
+.ss{background:var(--g50);border:1px solid var(--g100);border-radius:var(--rmd);padding:9px 11px;text-align:center}
+.ss-l{font-size:9px;font-weight:600;color:var(--g400);letter-spacing:.6px;text-transform:uppercase;margin-bottom:2px}
+.ss-v{font-family:'DM Mono',monospace;font-size:17px;font-weight:500;color:var(--g900)}
+
+.pl-box{
+  background:var(--g50);border:1.5px solid var(--g200);border-radius:var(--rlg);
+  padding:12px 14px;display:flex;align-items:center;justify-content:space-between;
+  gap:10px;margin-bottom:10px;transition:border-color .4s,background .4s;flex-wrap:wrap;
+}
+.pl-lbl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--g400);margin-bottom:2px}
+.pl-val{font-family:'DM Mono',monospace;font-size:28px;font-weight:500;letter-spacing:-1px;line-height:1;transition:color .3s;color:var(--g300)}
+.pl-sub{font-size:11px;color:var(--g400);margin-top:2px}
+
+.sim-ring{width:80px;height:80px;position:relative;flex-shrink:0}
+.sim-ring svg{width:80px;height:80px;transform:rotate(-90deg)}
+.sim-ring-lbl{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.sim-rn{font-family:'DM Mono',monospace;font-size:16px;font-weight:500;line-height:1;transition:color .3s;color:var(--g300)}
+.sim-ru{font-size:9px;color:var(--g400);letter-spacing:.5px;margin-top:1px}
+
+.pull-log{max-height:180px;overflow-y:auto;display:flex;flex-direction:column;gap:2px}
+.pull-log::-webkit-scrollbar{width:3px}
+.pull-log::-webkit-scrollbar-thumb{background:var(--g200);border-radius:2px}
+.log-row{display:flex;align-items:center;gap:6px;padding:5px 9px;border-radius:var(--rsm);background:var(--g50);border-left:3px solid transparent;font-size:12px}
+
+.sim-grid{display:grid;grid-template-columns:1fr 284px;gap:16px;align-items:start}
+@media(max-width:680px){.sim-grid{grid-template-columns:1fr}}
+
+/* ── MEMO ── */
+.memo-out{
+  width:100%;background:var(--g50);border:1.5px solid var(--g200);
+  border-radius:var(--rlg);color:var(--g700);
+  font-family:'DM Mono',monospace;font-size:12px;line-height:1.8;
+  padding:14px;resize:vertical;min-height:280px;outline:none;
+  transition:border-color .12s,box-shadow .12s;
+}
+.memo-out:focus{border-color:var(--ind);box-shadow:0 0 0 3px rgba(99,102,241,.1)}
+.memo-grid{display:grid;grid-template-columns:1fr 240px;gap:16px;align-items:start}
+@media(max-width:680px){.memo-grid{grid-template-columns:1fr}}
+
+/* ── MODALS ── */
+.modal-ov{
+  position:fixed;inset:0;background:rgba(15,23,42,.55);
+  display:flex;align-items:center;justify-content:center;
+  z-index:400;backdrop-filter:blur(4px);padding:16px;
+}
+.modal-box{background:var(--w);border:1px solid var(--g200);border-radius:var(--rxl);box-shadow:var(--sx);padding:26px 22px;max-width:330px;width:100%;text-align:center}
+.modal-scroll{background:var(--w);border:1px solid var(--g200);border-radius:var(--rxl);box-shadow:var(--sx);padding:26px;max-width:640px;width:100%;max-height:88vh;overflow-y:auto;text-align:left}
+.modal-scroll::-webkit-scrollbar{width:4px}
+.modal-scroll::-webkit-scrollbar-thumb{background:var(--g200);border-radius:2px}
+.mbtn-row{display:flex;gap:8px;margin-top:18px}
+.m-cancel{flex:1;padding:9px 0;background:var(--w);border:1.5px solid var(--g200);border-radius:var(--rmd);color:var(--g600);font-size:13px;font-weight:500;cursor:pointer;font-family:inherit}
+.m-cancel:hover{background:var(--g50)}
+.m-confirm{flex:1;padding:9px 0;background:var(--rbg);border:1.5px solid var(--rbdr);border-radius:var(--rmd);color:var(--red);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
+.m-close{display:block;width:100%;padding:10px 0;margin-top:16px;background:var(--ind);border:none;border-radius:var(--rmd);color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
+.m-close:hover{background:var(--ind-d)}
+.modal-doc h2{font-size:17px;font-weight:700;margin-bottom:5px;color:var(--g900)}
+.modal-doc .upd{font-size:11px;color:var(--g400);display:block;margin-bottom:14px}
+.modal-doc h3{font-size:13px;font-weight:600;margin:16px 0 6px;color:var(--g700)}
+.modal-doc p,.modal-doc li{font-size:13px;line-height:1.85;color:var(--g600)}
+.modal-doc ul{padding-left:17px;margin-top:4px;display:flex;flex-direction:column;gap:5px}
+.modal-doc a{color:var(--ind);text-decoration:underline;text-underline-offset:3px}
+.modal-doc .cbox{padding:11px 14px;background:var(--ibg);border:1px solid var(--ibdr);border-radius:var(--rmd);color:var(--ind);font-family:'DM Mono',monospace;font-size:13px;margin-top:7px}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+.fi{animation:fadeUp .16s ease}
+
+/* ── INFO + FOOTER ── */
+.info-sec{border-top:1px solid var(--g200);padding:36px 0;background:var(--w)}
+.info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:14px}
+@media(max-width:680px){.info-grid{grid-template-columns:1fr}}
+.info-card{border:1px solid var(--g200);border-radius:var(--rxl);padding:16px;background:var(--g50)}
+.info-card h3{font-size:13px;font-weight:600;margin-bottom:6px;color:var(--g800)}
+.info-card p{font-size:12px;color:var(--g500);line-height:1.8}
+footer{background:var(--g50);border-top:1px solid var(--g200);padding:26px 20px;text-align:center}
+.f-links{display:flex;justify-content:center;gap:18px;flex-wrap:wrap;margin-bottom:12px}
+.f-links a{font-size:12px;color:var(--g500);text-decoration:none;transition:color .12s;font-weight:500}
+.f-links a:hover{color:var(--ind)}
+.f-desc{font-size:11px;color:var(--g400);line-height:1.8;max-width:520px;margin:0 auto 12px}
+.f-copy{font-size:11px;color:var(--g400);letter-spacing:.3px}
+</style>
+</head>
+<body>
+
+<!-- ─ HEADER ─ -->
+<header class="site-hdr">
+  <div class="pg hdr-inner">
+    <a class="logo" href="../">
+      <span class="logo-mark">Oripa<em>Calc</em></span>
+      <span class="logo-sep">/</span>
+      <span class="logo-sub">オリパ計算ツール</span>
+    </a>
+    <div class="hdr-r">
+      <button class="btn-rst" onclick="confirmReset()">
+        <svg width="11" height="11" viewBox="0 0 16 16"><path d="M13.65 2.35A8 8 0 1 0 15 8h-2a6 6 0 1 1-1.05-3.4L10 6h5V1l-1.35 1.35Z" fill="currentColor"/></svg>
+        リセット
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ─ TABS ─ -->
+<div class="tab-wrap">
+  <div class="pg">
+    <div class="tab-list">
+      <button class="tab-btn active" onclick="switchTab('calc')">🧮 計算機</button>
+      <button class="tab-btn" onclick="switchTab('sim')">🎴 シミュレーター</button>
+      <button class="tab-btn" onclick="switchTab('memo')">📋 メモ出力</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─ MODALS ─ -->
+<div class="modal-ov" id="reset-modal" style="display:none" onclick="closeResetModal()">
+  <div class="modal-box fi" onclick="event.stopPropagation()">
+    <div style="font-size:24px;margin-bottom:8px">🗑️</div>
+    <div style="font-weight:700;font-size:15px;margin-bottom:5px">リセットしますか？</div>
+    <div style="font-size:13px;color:var(--g500)">入力したすべてのデータが削除されます。</div>
+    <div class="mbtn-row">
+      <button class="m-cancel" onclick="closeResetModal()">キャンセル</button>
+      <button class="m-confirm" onclick="doReset()">リセット</button>
+    </div>
+  </div>
+</div>
+<div class="modal-ov" id="doc-modal" style="display:none" onclick="closeDocModal()">
+  <div class="modal-scroll fi" onclick="event.stopPropagation()">
+    <div class="modal-doc" id="doc-content"></div>
+    <button class="m-close" onclick="closeDocModal()">閉じる</button>
+  </div>
+</div>
+
+<!-- ─ SPOTLIGHT ─ -->
+<div class="spotlight" id="spotlight" style="display:none" onclick="closeSpotlight()">
+  <div style="position:relative">
+    <div class="spot-card" id="spot-card">
+      <div class="spot-inner" id="spot-inner"></div>
+    </div>
+    <div class="spot-lbl" id="spot-lbl"></div>
+    <div class="spot-hint">タップ／クリックして閉じる</div>
+  </div>
+</div>
+
+<!-- ═══ MAIN ═══ -->
+<main class="main">
+<div class="pg">
+
+<!-- ══ TAB: 計算機 ══ -->
+<div id="tab-calc">
+  <div class="calc-grid">
+
+    <!-- LEFT: 入力ステップ -->
+    <div class="left-col">
+
+      <!-- STEP 1: 基本設定 -->
+      <div class="card cp">
+        <div class="step-hdr">
+          <span class="step-badge">1</span>
+          <span class="step-title">基本設定</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div class="field">
+            <div class="flbl">オリパ名
+              <span style="font-weight:400;color:var(--g400);font-size:10px">（任意）</span>
+            </div>
+            <div class="iw"><input type="text" id="oripaName" placeholder=""></div>
+          </div>
+          <div class="field">
+            <div class="flbl">総口数 <span class="tip" data-tip="全体の口数（＝総枚数）">?</span></div>
+            <div class="iw">
+              <input type="number" inputmode="numeric" id="totalLots" placeholder="10000" oninput="recalc()">
+              <span class="unit">口</span>
+            </div>
+          </div>
+          <div class="field">
+            <div class="flbl">1口の販売価格 <span class="tip" data-tip="1口引く際にかかる販売価格">?</span></div>
+            <div class="iw">
+              <input type="number" inputmode="numeric" id="pricePerLot" placeholder="100" oninput="recalc()">
+              <span class="unit">円</span>
+            </div>
+          </div>
+          <div class="divider" style="margin:6px 0 4px"></div>
+          <div class="field">
+            <div class="flbl" style="color:var(--g400)">販売合計金額</div>
+            <div class="disp mono" id="total-sales-disp">—</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 2: Tier設定 -->
+      <div class="card cp" style="border-color:var(--ibdr);background:var(--ibg)">
+        <div class="step-hdr">
+          <span class="step-badge">2</span>
+          <span class="step-title">景品ランク（Tier）の数</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <button class="sq-btn" id="btn-tier-minus" onclick="changeTierCount(-1)"
+            style="width:40px;height:40px;font-size:20px;color:var(--ind);border-color:var(--ibdr)">−</button>
+          <div style="flex:1;text-align:center">
+            <div id="tc">1</div>
+            <div style="font-size:10px;color:var(--ind);opacity:.6;letter-spacing:1px;font-weight:600;text-transform:uppercase">Tier</div>
+          </div>
+          <button class="sq-btn" id="btn-tier-plus" onclick="changeTierCount(+1)"
+            style="width:40px;height:40px;font-size:20px;color:var(--ind);border-color:var(--ibdr)">＋</button>
+        </div>
+        <div style="margin-top:8px;font-size:11px;color:var(--ind);opacity:.6;text-align:center;font-weight:500">最大10段階 ／ 最終Tierは残り口数が自動で割り当てられます</div>
+      </div>
+
+      <!-- Result (desktop sidebar / mobile: in rgt-col) -->
+      <div class="r-dt" id="result-desktop"></div>
+    </div><!-- /left-col -->
+
+    <!-- CENTER: Tier一覧 -->
+    <div class="ctr-col">
+      <div style="display:flex;align-items:center;gap:7px;margin-bottom:2px">
+        <span class="step-badge">3</span>
+        <span style="font-size:12px;font-weight:700;color:var(--g700)">各Tierの景品を設定</span>
+      </div>
+      <div id="tier-list"></div>
+    </div>
+
+    <!-- RIGHT: Results -->
+    <div class="rgt-col" id="result-area">
+      <!-- populated by JS -->
+    </div>
+
+  </div>
+</div><!-- /tab-calc -->
+
+<!-- ══ TAB: シミュレーター ══ -->
+<div id="tab-sim" style="display:none">
+  <div class="sim-grid">
+    <div style="display:flex;flex-direction:column;gap:13px">
+      <div class="card cp">
+        <div class="draw-zone" id="draw-zone">
+          <div style="font-size:13px;color:var(--g400);text-align:center;line-height:2">
+            計算機タブでTier・総口数・<br>1口価格を設定してから引けます
+          </div>
+        </div>
+        <div class="pull-actions">
+          <div class="pull-main">
+            <button class="pull-btn pb10" onclick="doPull(10)">🎴 10口引く</button>
+            <button class="pull-btn pb100" onclick="doPull(100)">🎴 100口引く</button>
+          </div>
+          <div class="pull-sub">
+            <button class="pull-btn pb1" onclick="doPull(1)">1口</button>
+          </div>
+        </div>
+      </div>
+      <div class="card cp">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:9px">
+          <div class="sec-lbl" style="margin-bottom:0">引いた履歴</div>
+          <span style="font-size:11px;color:var(--g400);font-family:'DM Mono',monospace" id="log-count"></span>
+        </div>
+        <div class="pull-log" id="pull-log"><div class="empty-hint">まだ引いていません</div></div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:11px">
+      <div class="card cp">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:11px">
+          <div class="sec-lbl" style="margin-bottom:0">収支</div>
+          <button class="btn-gh" onclick="resetSim()">↺ リセット</button>
+        </div>
+        <div class="pl-box" id="pl-box">
+          <div>
+            <div class="pl-lbl">損益</div>
+            <div class="pl-val" id="pl-val">± 0円</div>
+            <div class="pl-sub" id="pl-sub">0口引いた</div>
+          </div>
+          <div class="sim-ring">
+            <svg viewBox="0 0 80 80">
+              <circle cx="40" cy="40" r="31" fill="none" stroke="var(--g100)" stroke-width="7"/>
+              <circle id="rate-ring-arc" cx="40" cy="40" r="31" fill="none" stroke="var(--g300)" stroke-width="7"
+                stroke-linecap="round" stroke-dasharray="195" stroke-dashoffset="195"
+                style="transition:stroke-dashoffset .65s cubic-bezier(.4,0,.2,1),stroke .4s"/>
+            </svg>
+            <div class="sim-ring-lbl">
+              <div class="sim-rn" id="rate-ring-num">—</div>
+              <div class="sim-ru">% 還元</div>
+            </div>
+          </div>
+        </div>
+        <div class="sim-stats">
+          <div class="ss"><div class="ss-l">使用金額</div><div class="ss-v" id="wl-spent">¥0</div></div>
+          <div class="ss"><div class="ss-l">獲得封入額</div><div class="ss-v" id="wl-gained" style="color:var(--g300)">¥0</div></div>
+          <div class="ss"><div class="ss-l">残り口数</div><div class="ss-v" id="wl-remain" style="color:var(--g400)">—</div></div>
+          <div class="ss"><div class="ss-l">引いた口数</div><div class="ss-v" id="wl-drawn">0</div></div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:3px">
+            <span style="font-size:10px;color:var(--g400);font-weight:500">還元率</span>
+            <span style="font-size:11px;font-family:'DM Mono',monospace;font-weight:500;color:var(--g400)" id="rate-bar-label"></span>
+          </div>
+          <div class="rate-track"><div class="rate-fill" id="rate-bar-fill" style="width:0%;background:var(--g200)"></div></div>
+          <div style="display:flex;justify-content:space-between;margin-top:2px">
+            <span style="font-size:9px;color:var(--g300);font-family:'DM Mono',monospace">0%</span>
+            <span style="font-size:9px;color:var(--g300);font-family:'DM Mono',monospace">70%</span>
+            <span style="font-size:9px;color:var(--g300);font-family:'DM Mono',monospace">100%</span>
+            <span style="font-size:9px;color:var(--g300);font-family:'DM Mono',monospace">150%+</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div><!-- /tab-sim -->
+
+<!-- ══ TAB: メモ出力 ══ -->
+<div id="tab-memo" style="display:none">
+  <div class="memo-grid">
+    <div class="card cp">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:9px">
+        <div>
+          <div class="sec-lbl" style="margin-bottom:2px">メモ出力</div>
+          <div style="font-size:12px;color:var(--g500)">設定内容をテキストでコピーできます</div>
+        </div>
+        <div style="display:flex;gap:7px">
+          <button class="btn-pri" id="copy-btn" onclick="copyMemo()">
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><rect x="5" y="5" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M3 10H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            コピー
+          </button>
+          <button class="btn-gh" onclick="renderMemo()">更新</button>
+        </div>
+      </div>
+      <textarea class="memo-out" id="memo-out" readonly></textarea>
+    </div>
+    <div class="card cp">
+      <div class="sec-lbl">使い方</div>
+      <ul style="font-size:12px;color:var(--g500);line-height:1.9;padding-left:15px;display:flex;flex-direction:column;gap:4px">
+        <li>「コピー」でクリップボードにコピーされます</li>
+        <li>メモ帳・Notion・LINEなどに貼り付けて管理できます</li>
+        <li>内容を変更したあと「更新」で最新状態に反映できます</li>
+        <li>データはページを閉じると消えます。都度コピーして保管してください</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+</div><!-- .pg -->
+</main>
+
+<!-- ─ INFO ─ -->
+<section class="info-sec">
+  <div class="pg">
+    <div style="font-size:13px;font-weight:700;color:var(--g700);margin-bottom:4px">このツールについて</div>
+    <div style="font-size:12px;color:var(--g500);margin-bottom:16px">オリパの封入設計・収益計算・シミュレーションができる無料ツールです。</div>
+    <div class="info-grid">
+      <div class="info-card"><h3>🧮 計算機</h3><p>景品Tierごとに封入枚数・価格を設定し、還元率・期待値・利益率をリアルタイム計算。最終Tierには残りの口数が自動で割り当てられます。</p></div>
+      <div class="info-card"><h3>🎴 シミュレーター</h3><p>設定したオリパを実際に引く体験ができます。上位ランクを引いたときは演出があります。収支・還元率をリアルタイムで確認できます。</p></div>
+      <div class="info-card"><h3>📋 メモ出力</h3><p>設定内容をテキストメモとして出力・コピーできます。Tierごとの出現確率や利益分析も含めて出力します。</p></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="pg">
+    <div class="f-links">
+      <a href="../about.html">このサイトについて</a>
+      <a href="../terms.html">利用規約</a>
+      <a href="../privacy.html">プライバシーポリシー</a>
+      <a href="../contact.html">お問い合わせ</a>
+    </div>
+    <div class="f-desc">本ツールの計算結果はあくまで参考値です。実際のカード価格・取引条件とは異なる場合があります。本ツールを利用した取引・意思決定はすべて自己責任にてお願いします。</div>
+    <div class="f-copy">© 2026 cardgamer819</div>
+  </div>
+</footer>
+
+<script>
+// ════════════════════════════════════════
+// CONSTANTS
+// ════════════════════════════════════════
+const COLORS=[
+  {bg:"#ef4444",text:"#fff",glow:"rgba(239,68,68,.4)",  dim:"rgba(239,68,68,.07)", dark:"#450a0a"},
+  {bg:"#f59e0b",text:"#fff",glow:"rgba(245,158,11,.4)", dim:"rgba(245,158,11,.07)",dark:"#451a00"},
+  {bg:"#06b6d4",text:"#fff",glow:"rgba(6,182,212,.4)",  dim:"rgba(6,182,212,.07)", dark:"#042830"},
+  {bg:"#6366f1",text:"#fff",glow:"rgba(99,102,241,.4)", dim:"rgba(99,102,241,.07)",dark:"#1e1b50"},
+  {bg:"#10b981",text:"#fff",glow:"rgba(16,185,129,.4)", dim:"rgba(16,185,129,.07)",dark:"#042820"},
+  {bg:"#ec4899",text:"#fff",glow:"rgba(236,72,153,.4)", dim:"rgba(236,72,153,.07)",dark:"#440a20"},
+  {bg:"#8b5cf6",text:"#fff",glow:"rgba(139,92,246,.4)", dim:"rgba(139,92,246,.07)",dark:"#200855"},
+  {bg:"#84cc16",text:"#111",glow:"rgba(132,204,22,.4)",  dim:"rgba(132,204,22,.07)", dark:"#1a2800"},
+  {bg:"#0ea5e9",text:"#fff",glow:"rgba(14,165,233,.4)", dim:"rgba(14,165,233,.07)",dark:"#031828"},
+  {bg:"#f97316",text:"#fff",glow:"rgba(249,115,22,.4)", dim:"rgba(249,115,22,.07)", dark:"#3a0e00"},
+];
+const ICONS=["👑","⭐","💎","🔥","🌊","🌸","⚡","🎯","🍀","🎪"];
+
+// rareLevel: 0=plain, 1=shine only (T3), 2=spotlight (T1/T2)
+const RARE_LV=t=>t<=1?2:t===2?1:0;
+
+// SVG card art per tier
+const TIER_ART=[
+  (w,h,c)=>`<defs>
+    <radialGradient id="g0a" cx="50%" cy="40%" r="70%"><stop offset="0%" stop-color="${c.dark}"/><stop offset="100%" stop-color="#060010"/></radialGradient>
+    <radialGradient id="g0b" cx="50%" cy="45%" r="55%"><stop offset="0%" stop-color="${c.bg}" stop-opacity=".24"/><stop offset="100%" stop-color="${c.bg}" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="${w}" height="${h}" fill="url(#g0a)"/>
+  <rect width="${w}" height="${h}" fill="url(#g0b)"/>
+  ${Array.from({length:12},(_,i)=>{const a=i*30*Math.PI/180,r=w*.44;return`<line x1="${w/2}" y1="${h*.42}" x2="${w/2+r*Math.cos(a)}" y2="${h*.42+r*Math.sin(a)}" stroke="${c.bg}" stroke-width=".7" opacity=".13"/>`;}).join('')}
+  <polygon points="${w/2},${h*.17} ${w*.77},${h*.37} ${w*.65},${h*.61} ${w*.35},${h*.61} ${w*.23},${h*.37}" fill="none" stroke="${c.bg}" stroke-width="2" opacity=".58"/>
+  <text x="${w/2}" y="${h*.47}" text-anchor="middle" dominant-baseline="middle" font-size="${w*.32}">👑</text>`,
+
+  (w,h,c)=>`<defs><radialGradient id="g1a" cx="50%" cy="45%" r="65%"><stop offset="0%" stop-color="${c.dark}"/><stop offset="100%" stop-color="#030312"/></radialGradient></defs>
+  <rect width="${w}" height="${h}" fill="url(#g1a)"/>
+  ${(()=>{const p=[];for(let i=0;i<5;i++){const a=(i*72-90)*Math.PI/180,b=(i*72-90+36)*Math.PI/180,r1=w*.23,r2=w*.1;p.push(`${w/2+r1*Math.cos(a)},${h*.40+r1*Math.sin(a)} ${w/2+r2*Math.cos(b)},${h*.40+r2*Math.sin(b)}`);}return`<polygon points="${p.join(' ')}" fill="${c.bg}" opacity=".63"/>`;})()}
+  <text x="${w/2}" y="${h*.42}" text-anchor="middle" dominant-baseline="middle" font-size="${w*.28}">⭐</text>`,
+
+  (w,h,c)=>`<defs><linearGradient id="g2a" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="${c.dark}"/><stop offset="100%" stop-color="#020216"/></linearGradient></defs>
+  <rect width="${w}" height="${h}" fill="url(#g2a)"/>
+  <polygon points="${w/2},${h*.18} ${w*.7},${h*.35} ${w*.7},${h*.57} ${w*.5},${h*.67} ${w*.3},${h*.57} ${w*.3},${h*.35}" fill="${c.bg}" opacity=".17" stroke="${c.bg}" stroke-width="1.5"/>
+  <text x="${w/2}" y="${h*.44}" text-anchor="middle" dominant-baseline="middle" font-size="${w*.28}">💎</text>`,
+
+  (w,h,c)=>`<defs><linearGradient id="g3a" x1="0" y1="1" x2="0" y2="0"><stop offset="0%" stop-color="#080000"/><stop offset="100%" stop-color="${c.dark}"/></linearGradient></defs>
+  <rect width="${w}" height="${h}" fill="url(#g3a)"/>
+  <ellipse cx="${w/2}" cy="${h*.64}" rx="${w*.24}" ry="${h*.07}" fill="${c.bg}" opacity=".18"/>
+  <text x="${w/2}" y="${h*.44}" text-anchor="middle" dominant-baseline="middle" font-size="${w*.32}">🔥</text>`,
+
+  (w,h,c)=>`<defs><linearGradient id="g4a" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#000810"/><stop offset="100%" stop-color="${c.dark}"/></linearGradient></defs>
+  <rect width="${w}" height="${h}" fill="url(#g4a)"/>
+  ${[0,1,2].map(i=>`<path d="M0,${h*(.34+i*.09)} Q${w*.25},${h*(.27+i*.09)} ${w*.5},${h*(.34+i*.09)} T${w},${h*(.34+i*.09)}" fill="none" stroke="${c.bg}" stroke-width="${1.6-i*.4}" opacity="${.37-i*.08}"/>`).join('')}
+  <text x="${w/2}" y="${h*.45}" text-anchor="middle" dominant-baseline="middle" font-size="${w*.30}">🌊</text>`,
+
+  (w,h,c)=>`<rect width="${w}" height="${h}" fill="#08000e"/>
+  ${Array.from({length:6},(_,i)=>{const a=i*60*Math.PI/180;return`<circle cx="${w/2+w*.18*Math.cos(a)}" cy="${h*.40+h*.14*Math.sin(a)}" r="${w*.09}" fill="${c.bg}" opacity=".22"/>`;}).join('')}
+  <text x="${w/2}" y="${h*.44}" text-anchor="middle" dominant-baseline="middle" font-size="${w*.30}">🌸</text>`,
+
+  (w,h,c)=>`<rect width="${w}" height="${h}" fill="#02020b"/>
+  <polyline points="${w*.54},${h*.18} ${w*.41},${h*.40} ${w*.51},${h*.40} ${w*.37},${h*.65}" fill="none" stroke="${c.bg}" stroke-width="2.5" stroke-linejoin="round" opacity=".75"/>
+  <text x="${w/2}" y="${h*.44}" text-anchor="middle" dominant-baseline="middle" font-size="${w*.28}">⚡</text>`,
+
+  (w,h,c)=>`<rect width="${w}" height="${h}" fill="#040408"/>
+  ${[.27,.19,.11].map((r,i)=>`<circle cx="${w/2}" cy="${h*.40}" r="${w*r}" fill="none" stroke="${c.bg}" stroke-width="${1.2-i*.22}" opacity="${.28+i*.13}"/>`).join('')}
+  <text x="${w/2}" y="${h*.44}" text-anchor="middle" dominant-baseline="middle" font-size="${w*.28}">🎯</text>`,
+
+  (w,h,c)=>`<rect width="${w}" height="${h}" fill="#020808"/>
+  ${[[0,-1],[1,0],[0,1],[-1,0]].map(([dx,dy])=>`<circle cx="${w/2+dx*w*.1}" cy="${h*.40+dy*h*.09}" r="${w*.1}" fill="${c.bg}" opacity=".22"/>`).join('')}
+  <text x="${w/2}" y="${h*.44}" text-anchor="middle" dominant-baseline="middle" font-size="${w*.28}">🍀</text>`,
+
+  (w,h,c)=>`<rect width="${w}" height="${h}" fill="#060606"/>
+  <circle cx="${w/2}" cy="${h*.40}" r="${w*.21}" fill="none" stroke="${c.bg}" stroke-width="1.3" opacity=".28"/>
+  <circle cx="${w/2}" cy="${h*.40}" r="${w*.12}" fill="${c.bg}" opacity=".14"/>
+  <text x="${w/2}" y="${h*.44}" text-anchor="middle" dominant-baseline="middle" font-size="${w*.28}">🎪</text>`,
+];
+
+// ════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════
+let uidC=0;
+const uid=()=>++uidC;
+const mkTier=n=>({id:uid(),num:n,mode:"avg",avgPrice:"",count:"",items:[],name:""});
+const renumber=ts=>ts.map((t,i)=>({...t,num:i+1}));
+const fmt=n=>{const v=Number(n);return isNaN(v)?"0":v.toLocaleString("ja-JP")};
+const fmtY=n=>`¥${fmt(n)}`;
+const parse=v=>{if(v===""||v==null)return 0;return typeof v==="number"?v:Number(String(v).replace(/,/g,""))||0};
+const shuffle=a=>{const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b};
+
+let state={totalLots:"",pricePerLot:"",tiers:[mkTier(1)]};
+let sim={deck:[],drawn:[],spent:0,gained:0};
+let currentTab="calc";
+// Track if result panels are built (for gauge persistence)
+let resultBuilt=false;
+
+// ════════════════════════════════════════
+// CALC ENGINE (corrected & verified)
+// ════════════════════════════════════════
+function calcAll(){
+  const tiers=state.tiers;
+  const last=tiers[tiers.length-1];
+  const totalLots=parse(state.totalLots);
+  const ppl=parse(state.pricePerLot);
+
+  // Fixed count = sum of all tiers except the last
+  const fixedCount=tiers.slice(0,-1).reduce((s,t)=>{
+    if(t.mode==="detail") return s+t.items.length;
+    return s+parse(t.count);
+  },0);
+
+  // Last tier gets the remainder (always >= 0)
+  const lastCount=Math.max(0,totalLots-fixedCount);
+
+  // Per-tier counts array
+  const tierCounts=tiers.map((t,i)=>{
+    if(i===tiers.length-1) return lastCount;
+    if(t.mode==="detail") return t.items.length;
+    return parse(t.count);
+  });
+
+  // Per-tier total inserted value
+  const tierTotals=tiers.map((tier,i)=>{
+    const isLast=i===tiers.length-1;
+    if(isLast) return lastCount*parse(tier.avgPrice);
+    if(tier.mode==="detail") return tier.items.reduce((s,it)=>s+parse(it.price),0);
+    return parse(tier.count)*parse(tier.avgPrice);
+  });
+
+  const totalInserted=tierTotals.reduce((a,b)=>a+b,0);
+  const totalSales=totalLots*ppl;
+  const returnRate=totalSales>0?(totalInserted/totalSales)*100:0;
+  const expectedValue=totalLots>0?totalInserted/totalLots:0;
+
+  // Tier1 prob
+  const t1Count=tierCounts[0]||0;
+  const t1Prob=totalLots>0?(t1Count/totalLots)*100:0;
+
+  // Count consistency: warn if fixedCount > totalLots
+  const overflow=totalLots>0&&fixedCount>totalLots;
+
+  return{fixedCount,lastCount,tierCounts,tierTotals,totalInserted,totalSales,returnRate,expectedValue,t1Prob,t1Count,overflow};
+}
+
+// ════════════════════════════════════════
+// RESULT PANELS — Persistent gauge (not rebuilt on every keystroke)
+// ════════════════════════════════════════
+const rc=r=>r>=100?"#10b981":r>=70?"#f59e0b":"#ef4444";
+const rcRGB=r=>r>=100?"16,185,129":r>=70?"245,158,11":"239,68,68";
+// ── GAUGE ──
+// Semi-circle: 0%=left, 100%=top, max=right
+// r=52, cx=84, cy=70. Track: (32,70) → (136,70), height clearance = 70-52=18px for labels
+const GR=52, GCX=84, GCY=70;
+
+function gaugeArcPath(pct){
+  pct=Math.min(Math.max(pct,0),1);
+  if(pct<0.005) return `M${GCX-GR},${GCY} A${GR},${GR} 0 0,1 ${GCX-GR+0.01},${GCY}`;
+  // Start=180°(left), sweep clockwise (decreasing angle in standard math)
+  // At pct=0: angle=180°(left), pct=0.5: angle=90°(top), pct=1: angle=0°(right)
+  const angleDeg=180-pct*180;
+  const rad=angleDeg*Math.PI/180;
+  const fx=GCX+GR*Math.cos(rad);
+  const fy=GCY+GR*Math.sin(rad);
+  return `M${GCX-GR},${GCY} A${GR},${GR} 0 ${pct>0.5?1:0},1 ${fx},${fy}`;
+}
+
+function updateGaugeSVG(id,value,maxVal,color){
+  const pct=value>0?Math.min(value/maxVal,1):0;
+  const arc=document.getElementById(id+"-arc");
+  const dot=document.getElementById(id+"-dot");
+  const num=document.getElementById(id+"-num");
+  if(!arc||!dot||!num) return;
+  arc.setAttribute("d",gaugeArcPath(pct));
+  arc.style.stroke=pct>0?color:"#e2e8f0";
+  const angleDeg=180-pct*180, rad=angleDeg*Math.PI/180;
+  const dx=GCX+GR*Math.cos(rad), dy=GCY+GR*Math.sin(rad);
+  dot.setAttribute("cx", String(pct>0?dx:GCX-GR));
+  dot.setAttribute("cy", String(pct>0?dy:GCY));
+  dot.style.fill=pct>0?color:"#e2e8f0";
+  dot.style.opacity=pct>0?"1":"0";
+  num.textContent=value>0?value.toFixed(1)+"%":"—";
+  num.style.fill=value>0?color:"#cbd5e1";
+}
+
+function buildGaugeSVG(id,label,scaleMax){
+  // viewBox: width=168(GCX*2=168), height=90
+  // Left label at x=GCX-GR=32, right label at x=GCX+GR=136
+  // Keep labels inside viewBox — use text-anchor:start for right label
+  return `<div>
+    <svg width="168" height="72" viewBox="0 0 168 72" style="display:block;margin:0 auto">
+      <path d="M${GCX-GR},${GCY} A${GR},${GR} 0 0,1 ${GCX+GR},${GCY}" class="gauge-track"/>
+      <path id="${id}-arc" d="M${GCX-GR},${GCY} A${GR},${GR} 0 0,1 ${GCX-GR+0.01},${GCY}"
+        class="gauge-arc" style="stroke:#e2e8f0"/>
+      <circle id="${id}-dot" cx="${GCX-GR}" cy="${GCY}" r="5" fill="#e2e8f0" opacity="0"/>
+      <text x="${GCX-GR}" y="${GCY+14}" font-size="9" fill="#94a3b8" text-anchor="middle" font-family="'DM Mono',monospace">0</text>
+      <text x="${GCX}" y="${GCY-GR-5}" font-size="9" fill="#94a3b8" text-anchor="middle" font-family="'DM Mono',monospace">100%</text>
+      <text x="${GCX+GR}" y="${GCY+14}" font-size="9" fill="#94a3b8" text-anchor="middle" font-family="'DM Mono',monospace">${scaleMax}</text>
+    </svg>
+    <div style="text-align:center;margin-top:2px">
+      <div id="${id}-num" style="font-family:'DM Mono',monospace;font-size:25px;font-weight:500;letter-spacing:-1px;color:#cbd5e1;line-height:1;transition:color .4s">—</div>
+      <div style="font-size:11px;font-weight:600;color:#64748b;margin-top:3px;letter-spacing:.3px">${label}</div>
+    </div>
+  </div>`;
+}
+
+function buildResultPanelsHTML(){
+  return `
+  <div class="gauge-card fi" id="rg-card">
+    <div class="sec-lbl" style="margin-bottom:10px">計算結果</div>
+    ${buildGaugeSVG("rg","封入還元率","150%+")}
+    <div class="divider"></div>
+    <div class="stat-grid">
+      <div class="stat-box">
+        <div class="stat-lbl">封入額合計</div>
+        <div class="stat-val mono dim" id="rv-ins">—</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-lbl">1口期待値 <span class="tip" data-tip="封入額合計 ÷ 総口数 = 1口で得られる平均封入額">?</span></div>
+        <div class="stat-val mono dim" id="rv-ev">—</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-lbl">Tier1確率 <span class="tip" data-tip="最高ランク（Tier1）が当たる確率">?</span></div>
+        <div class="stat-val mono dim" id="rv-t1">—</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-lbl">販売合計</div>
+        <div class="stat-val mono dim" id="rv-sales">—</div>
+      </div>
+    </div>
+    <div class="advice-box" id="rv-advice" style="display:none"></div>
+  </div>
+`;
+}
+
+function ensureResultBuilt(){
+  if(resultBuilt) return;
+  const html=buildResultPanelsHTML();
+  const area=document.getElementById("result-area");
+  if(area) area.innerHTML=html;
+  // also desktop sidebar
+  const dt=document.getElementById("result-desktop");
+  if(dt) dt.innerHTML="";
+  resultBuilt=true;
+}
+
+function updateResultPanels(calc){
+  ensureResultBuilt();
+  const{totalInserted,totalSales,returnRate,expectedValue,t1Prob,t1Count,overflow}=calc;
+  const has=totalSales>0;
+  const tpl=parse(state.totalLots), ppl=parse(state.pricePerLot);
+
+
+  // Gauge 1: rate
+  updateGaugeSVG("rg", has?returnRate:0, 150, rc(returnRate));
+  const rgCard=document.getElementById("rg-card");
+  if(rgCard) rgCard.style.borderColor=has?`rgba(${rcRGB(returnRate)},.28)`:"var(--g200)";
+
+  // Stat values helper
+  const sv=(id,val,color)=>{
+    const el=document.getElementById(id); if(!el) return;
+    el.textContent=val;
+    el.classList.toggle("dim",val==="—");
+    el.style.color=val==="—"?"":color||"";
+  };
+  sv("rv-ins", has?fmtY(Math.round(totalInserted)):"—", "#f59e0b");
+  sv("rv-ev", (has&&tpl>0)?fmtY(Math.round(expectedValue)):"—", "");
+  sv("rv-t1", (has&&t1Count>0)?t1Prob.toFixed(3)+"%":"—", "");
+  sv("rv-sales", has?fmtY(totalSales):"—", "");
+
+  // Advice box 1
+  const adv=document.getElementById("rv-advice");
+  if(adv){
+    if(has&&ppl>0){
+      adv.style.display="block";
+      adv.style.borderLeftColor=rc(returnRate);
+      if(returnRate>=100) adv.innerHTML=`✅ 還元率 <strong>${returnRate.toFixed(1)}%</strong> — 統計上はお得な設計です。`;
+      else if(returnRate>=70) adv.innerHTML=`📊 還元率 <strong>${returnRate.toFixed(1)}%</strong> — 一般的な水準です。期待値 <strong>${fmtY(Math.round(expectedValue))}</strong> ／ 販売価格 <strong>${fmtY(ppl)}</strong>。`;
+      else adv.innerHTML=`📊 還元率 <strong style="color:#ef4444">${returnRate.toFixed(1)}%</strong> — やや低めです。封入額・販売価格の見直しをご検討ください。`;
+    } else { adv.style.display="none"; }
+  }
+
+  // Overflow warning in tier area
+  const ow=document.getElementById("overflow-warn");
+  if(ow){
+    ow.style.display=overflow?"block":"none";
+    if(overflow) ow.textContent=`⚠️ 各Tierの口数の合計（${fmt(calc.fixedCount)}口）が総口数（${fmt(parse(state.totalLots))}口）を超えています。各Tierの口数を見直してください。`;
+  }
+
+}
+
+// ════════════════════════════════════════
+// TOP DISPLAY
+// ════════════════════════════════════════
+function updateTopDisplay(calc){
+  const has=calc.totalSales>0;
+  const el=document.getElementById("total-sales-disp");
+  if(el){el.textContent=has?fmtY(calc.totalSales):"—";el.classList.toggle("on",has);}
+  updateResultPanels(calc);
+}
+
+// ════════════════════════════════════════
+// RENDER (full rebuild on structural change)
+// ════════════════════════════════════════
+function render(){
+  const calc=calcAll();
+  updateTopDisplay(calc);
+  renderTiers(calc);
+  updateTierCountButtons();
+}
+
+// Lightweight recalc (inputs only — no tier DOM rebuild)
+function recalc(){
+  state.totalLots=document.getElementById("totalLots").value;
+  state.pricePerLot=document.getElementById("pricePerLot").value;
+  const calc=calcAll();
+  updateTopDisplay(calc);
+  updateTierSummaries(calc);
+}
+
+// ════════════════════════════════════════
+// TIER RENDERING
+// ════════════════════════════════════════
+const getAvgP=(tier,isLast)=>{
+  if(tier.mode==="detail"&&tier.items.length>0)
+    return Math.round(tier.items.reduce((s,it)=>s+parse(it.price),0)/tier.items.length);
+  return parse(tier.avgPrice);
+};
+
+function buildSumHTML(tier,col,isLast,cnt,avgP,total,fixedCount,lastCount){
+  return `<div style="font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:#94a3b8;margin-bottom:7px">Summary</div>
+  <div class="sum-row">
+    <div>
+      <div style="font-size:9px;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:.4px;margin-bottom:1px">口数</div>
+      ${isLast
+        ?`<div style="font-size:9px;color:#94a3b8;font-family:'DM Mono',monospace;line-height:1.3">${fmt(parse(state.totalLots))}−${fmt(fixedCount)}</div>
+          <div style="font-family:'DM Mono',monospace;font-size:18px;font-weight:500;color:${col.bg};line-height:1;letter-spacing:-1px">${fmt(lastCount)}</div>`
+        :`<div style="font-family:'DM Mono',monospace;font-size:18px;font-weight:500;color:${col.bg};letter-spacing:-1px">${fmt(cnt)}</div>`}
+    </div>
+    <div>
+      <div style="font-size:9px;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:.4px;margin-bottom:1px">平均価格</div>
+      <div style="font-family:'DM Mono',monospace;font-size:11px;font-weight:500;color:${avgP>0?"#334155":"#cbd5e1"}">${avgP>0?fmtY(avgP):"—"}</div>
+    </div>
+    <div>
+      <div style="font-size:9px;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:.4px;margin-bottom:1px">封入額</div>
+      <div style="font-family:'DM Mono',monospace;font-size:13px;font-weight:500;color:${total>0?"#f59e0b":"#cbd5e1"}">${total>0?fmtY(Math.round(total)):"—"}</div>
+    </div>
+  </div>`;
+}
+
+function renderTiers(calc){
+  const{fixedCount,lastCount,tierTotals}=calc;
+  const list=document.getElementById("tier-list"); list.innerHTML="";
+
+  // Overflow warning row
+  const owDiv=document.createElement("div");
+  owDiv.id="overflow-warn";
+  owDiv.style.cssText="display:none;font-size:11px;color:#92400e;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:8px 11px;margin-bottom:8px;line-height:1.55";
+  list.appendChild(owDiv);
+
+  const tiers=state.tiers, lastTier=tiers[tiers.length-1];
+  tiers.forEach((tier,tIdx)=>{
+    const col=COLORS[tIdx%COLORS.length];
+    const icon=ICONS[tIdx%ICONS.length];
+    const isLast=tier.id===lastTier.id;
+    const total=tierTotals[tIdx];
+    const cnt=isLast?lastCount:(tier.mode==="detail"?tier.items.length:parse(tier.count));
+    const avgP=getAvgP(tier,isLast);
+
+    const card=document.createElement("div"); card.className="tier-card fi";
+
+    // Header
+    const hdr=document.createElement("div"); hdr.className="tier-hdr";
+    const acc=document.createElement("div"); acc.className="t-accent"; acc.style.background=col.bg; hdr.appendChild(acc);
+    const bw=document.createElement("div"); bw.className="t-badge-wrap";
+    const b=document.createElement("div"); b.className="t-badge";
+    b.textContent=`${icon} T${tier.num}`;
+    b.style.cssText=`background:${col.dim};color:${col.bg};border:1px solid ${col.bg}44`;
+    bw.appendChild(b); hdr.appendChild(bw);
+
+    if(!isLast){
+      const tabs=document.createElement("div"); tabs.className="tier-tabs";
+      [["avg","平均指定"],["detail","個別指定"]].forEach(([m,label])=>{
+        const btn=document.createElement("button");
+        btn.className="ttab"+(tier.mode===m?" on":"");
+        btn.textContent=label;
+        btn.style.color=tier.mode===m?col.bg:"#94a3b8";
+        btn.style.borderBottomColor=tier.mode===m?col.bg:"transparent";
+        btn.onclick=()=>{tier.mode=m;render();};
+        tabs.appendChild(btn);
+      });
+      hdr.appendChild(tabs);
+    } else {
+      const al=document.createElement("div"); al.className="t-auto"; al.textContent="残り口数（自動計算）"; hdr.appendChild(al);
+    }
+    if(tiers.length>1){
+      const dw=document.createElement("div"); dw.className="t-del-wrap";
+      const db=document.createElement("button"); db.className="del-btn"; db.innerHTML="×"; db.title="このTierを削除";
+      db.onclick=()=>{state.tiers=renumber(state.tiers.filter(t=>t.id!==tier.id));render();updateTierCountDisplay();};
+      dw.appendChild(db); hdr.appendChild(dw);
+    }
+    card.appendChild(hdr);
+
+    // Body
+    const body=document.createElement("div"); body.className="tier-body";
+    const sum=document.createElement("div"); sum.className="t-sum"; sum.id=`ts-${tier.id}`;
+    sum.style.background=`linear-gradient(135deg,${col.dim},transparent)`;
+    sum.innerHTML=buildSumHTML(tier,col,isLast,cnt,avgP,total,fixedCount,lastCount);
+    body.appendChild(sum);
+    const ip=document.createElement("div"); ip.className="t-inp";
+    buildTierInputs(ip,tier,col,isLast,fixedCount,lastCount);
+    body.appendChild(ip);
+
+    card.appendChild(body); list.appendChild(card);
+  });
+  // After building, update the overflow warn
+  if(calc.overflow){
+    const ow2=document.getElementById("overflow-warn");
+    if(ow2){
+      ow2.style.display="block";
+      ow2.textContent=`⚠️ 各Tierの口数の合計（${fmt(calc.fixedCount)}口）が総口数（${fmt(parse(state.totalLots))}口）を超えています。各Tierの口数を見直してください。`;
+    }
+  }
+}
+
+function buildTierInputs(ip,tier,col,isLast,fixedCount,lastCount){
+  if(isLast||tier.mode==="avg"){
+    const wrap=document.createElement("div"); wrap.style.cssText="display:flex;flex-direction:column;gap:8px";
+
+    // Name
+    const rn=document.createElement("div"); rn.className="field";
+    rn.innerHTML=`<div class="flbl">景品名<span style="font-weight:400;color:var(--g400);font-size:10px;margin-left:3px">（任意）</span></div>`;
+    const nw=document.createElement("div"); nw.className="iw";
+    const ni=document.createElement("input"); ni.type="text"; ni.value=tier.name||""; ni.placeholder="SR以上確定";
+    ni.addEventListener("input",()=>{tier.name=ni.value;}); nw.appendChild(ni); rn.appendChild(nw); wrap.appendChild(rn);
+
+    // Count (non-last only)
+    if(!isLast){
+      const r=document.createElement("div"); r.className="field";
+      r.innerHTML=`<div class="flbl">口数</div>`;
+      const iw=document.createElement("div"); iw.className="iw"; iw.style.maxWidth="160px";
+      const inp=document.createElement("input"); inp.type="number"; inp.inputMode="numeric"; inp.value=tier.count; inp.placeholder="5";
+      inp.addEventListener("input",()=>{tier.count=inp.value;updateTierSummaries(calcAll());updateResultPanels(calcAll());});
+      const u=document.createElement("span"); u.className="unit"; u.textContent="口";
+      iw.appendChild(inp); iw.appendChild(u); r.appendChild(iw); wrap.appendChild(r);
+    }
+
+    // Avg price
+    const r2=document.createElement("div"); r2.className="field";
+    r2.innerHTML=`<div class="flbl">景品平均価格 <span class="tip" data-tip="この段階の景品1枚あたりの平均封入額">?</span></div>`;
+    const iw2=document.createElement("div"); iw2.className="iw"; iw2.style.maxWidth="160px";
+    const inp2=document.createElement("input"); inp2.type="number"; inp2.inputMode="numeric"; inp2.value=tier.avgPrice; inp2.placeholder="50000";
+    inp2.addEventListener("input",()=>{tier.avgPrice=inp2.value;updateTierSummaries(calcAll());updateResultPanels(calcAll());});
+    const u2=document.createElement("span"); u2.className="unit"; u2.textContent="円";
+    iw2.appendChild(inp2); iw2.appendChild(u2); r2.appendChild(iw2); wrap.appendChild(r2);
+
+    if(isLast){
+      const hint=document.createElement("div"); hint.id=`th-${tier.id}`; hint.className="hint-box";
+      hint.innerHTML=`自動計算: ${fmt(parse(state.totalLots))} − ${fmt(fixedCount)} = <strong style="color:${col.bg}">${fmt(lastCount)} 口</strong>`;
+      wrap.appendChild(hint);
+    }
+    ip.appendChild(wrap);
+  } else {
+    // Detail mode
+    if(tier.items.length===0){
+      const h2=document.createElement("div"); h2.className="empty-hint"; h2.textContent="カードを追加してください"; ip.appendChild(h2);
+    } else {
+      const tbl=document.createElement("table");
+      tbl.innerHTML=`<thead><tr><th style="width:18px">#</th><th>カード名</th><th style="width:115px">封入価格</th><th style="width:26px"></th></tr></thead>`;
+      const tbody=document.createElement("tbody");
+      tier.items.forEach((item,iIdx)=>{
+        const tr=document.createElement("tr");
+        const tdn=document.createElement("td"); tdn.style.cssText="font-size:10px;color:#94a3b8;font-family:'DM Mono',monospace"; tdn.textContent=iIdx+1; tr.appendChild(tdn);
+        const tn=document.createElement("td"); const nw2=document.createElement("div"); nw2.className="iw";
+        const ni2=document.createElement("input"); ni2.value=item.name; ni2.placeholder="カード名";
+        ni2.addEventListener("input",()=>{item.name=ni2.value;}); nw2.appendChild(ni2); tn.appendChild(nw2); tr.appendChild(tn);
+        const tp=document.createElement("td"); const pw=document.createElement("div"); pw.className="iw";
+        const pi=document.createElement("input"); pi.type="number"; pi.inputMode="numeric"; pi.value=item.price; pi.placeholder="—"; pi.style.textAlign="right";
+        pi.addEventListener("input",()=>{item.price=pi.value;updateTierSummaries(calcAll());updateResultPanels(calcAll());});
+        const pu=document.createElement("span"); pu.className="unit"; pu.textContent="円";
+        pw.appendChild(pi); pw.appendChild(pu); tp.appendChild(pw); tr.appendChild(tp);
+        const td=document.createElement("td"); const db=document.createElement("button"); db.className="del-btn"; db.innerHTML="×";
+        db.onclick=()=>{tier.items=tier.items.filter(i=>i.id!==item.id);render();};
+        td.appendChild(db); tr.appendChild(td); tbody.appendChild(tr);
+      });
+      tbl.appendChild(tbody); ip.appendChild(tbl);
+    }
+    const ab=document.createElement("button"); ab.className="add-row";
+    ab.innerHTML=`<svg width="11" height="11" viewBox="0 0 12 12"><path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> カードを追加`;
+    ab.onclick=()=>{tier.items.push({id:uid(),name:"",price:""});render();}; ip.appendChild(ab);
+  }
+}
+
+function updateTierSummaries(calc){
+  const{fixedCount,lastCount,tierTotals}=calc;
+  const tiers=state.tiers, lastTier=tiers[tiers.length-1];
+  tiers.forEach((tier,tIdx)=>{
+    const col=COLORS[tIdx%COLORS.length]; const isLast=tier.id===lastTier.id;
+    const total=tierTotals[tIdx];
+    const cnt=isLast?lastCount:(tier.mode==="detail"?tier.items.length:parse(tier.count));
+    const avgP=getAvgP(tier,isLast);
+    const sumEl=document.getElementById(`ts-${tier.id}`);
+    if(sumEl) sumEl.innerHTML=buildSumHTML(tier,col,isLast,cnt,avgP,total,fixedCount,lastCount);
+    const hintEl=document.getElementById(`th-${tier.id}`);
+    if(hintEl) hintEl.innerHTML=`自動計算: ${fmt(parse(state.totalLots))} − ${fmt(fixedCount)} = <strong style="color:${col.bg}">${fmt(lastCount)} 口</strong>`;
+  });
+  // overflow
+  const ow=document.getElementById("overflow-warn");
+  if(ow){
+    ow.style.display=calc.overflow?"block":"none";
+    if(calc.overflow) ow.textContent=`⚠️ 各Tierの口数の合計（${fmt(calc.fixedCount)}口）が総口数（${fmt(parse(state.totalLots))}口）を超えています。各Tierの口数を見直してください。`;
+  }
+}
+
+// ════════════════════════════════════════
+// TIER COUNT
+// ════════════════════════════════════════
+function changeTierCount(delta){
+  const cur=state.tiers.length, next=Math.max(1,Math.min(10,cur+delta));
+  if(next===cur) return;
+  if(next>cur){
+    const map={};state.tiers.forEach(t=>{map[t.num]=t;});
+    state.tiers=Array.from({length:next},(_,i)=>{const n=i+1;return map[n]?{...map[n],num:n}:mkTier(n);});
+  } else { state.tiers=renumber(state.tiers.slice(0,next)); }
+  updateTierCountDisplay(); render();
+}
+function updateTierCountDisplay(){document.getElementById("tc").textContent=state.tiers.length;}
+function updateTierCountButtons(){
+  const n=state.tiers.length;
+  document.getElementById("btn-tier-minus").disabled=n<=1;
+  document.getElementById("btn-tier-plus").disabled=n>=10;
+}
+
+// ════════════════════════════════════════
+// SIMULATOR — CARDS
+// ════════════════════════════════════════
+function makeCardFrontSVG(tIdx,w,h){
+  const col=COLORS[tIdx%COLORS.length];
+  const art=TIER_ART[tIdx%TIER_ART.length](w,h,col);
+  const isRare=tIdx<=2;
+  return`<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
+    ${art}
+    <rect x="0" y="0" width="${w}" height="${h*.115}" rx="9" fill="${col.bg}" opacity=".82"/>
+    <rect x="0" y="${h*.085}" width="${w}" height="${h*.03}" fill="${col.bg}" opacity=".82"/>
+    <text x="${w/2}" y="${h*.082}" text-anchor="middle" font-size="${w*.10}" fill="${col.text}" font-family="'DM Mono',monospace" font-weight="500">TIER ${tIdx+1}</text>
+    <rect x="0" y="${h*.87}" width="${w}" height="${h*.13}" fill="${col.bg}" opacity=".78"/>
+    <rect x="1.5" y="1.5" width="${w-3}" height="${h-3}" rx="9" fill="none" stroke="${col.bg}" stroke-width="${isRare?2.5:1.5}" opacity="${isRare?1:.45}"/>
+    ${isRare?`<rect x="4" y="4" width="${w-8}" height="${h-8}" rx="7" fill="none" stroke="#fff" stroke-width=".5" opacity=".14"/>`:""}</svg>`;
+}
+function makeCardBackSVG(w,h){
+  return`<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
+    <defs><linearGradient id="cbg4" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#1e293b"/><stop offset="100%" stop-color="#0f172a"/></linearGradient></defs>
+    <rect width="${w}" height="${h}" rx="9" fill="url(#cbg4)"/>
+    ${Array.from({length:7},(_,i)=>`
+      <line x1="0" y1="${i*(h/6)}" x2="${w}" y2="${i*(h/6)}" stroke="rgba(99,102,241,.07)" stroke-width="1"/>
+      <line x1="${i*(w/6)}" y1="0" x2="${i*(w/6)}" y2="${h}" stroke="rgba(99,102,241,.07)" stroke-width="1"/>`).join('')}
+    <rect x="2" y="2" width="${w-4}" height="${h-4}" rx="8" fill="none" stroke="rgba(99,102,241,.24)" stroke-width="1.5"/>
+    <text x="${w/2}" y="${h/2-6}" text-anchor="middle" font-size="${w*.22}" fill="rgba(99,102,241,.36)">🎴</text>
+    <text x="${w/2}" y="${h/2+10}" text-anchor="middle" font-size="${w*.085}" fill="rgba(99,102,241,.28)" font-family="'DM Mono',monospace" letter-spacing="2">ORIPA</text>
+  </svg>`;
+}
+function makeCardEl(tIdx,price,size,rl){
+  rl=rl!=null?rl:RARE_LV(tIdx);
+  const dims={lg:[130,182],md:[90,126],sm:[68,95]};
+  const[w,h]=dims[size]||dims.md;
+  const col=COLORS[tIdx%COLORS.length];
+  const scene=document.createElement("div");
+  scene.className=`card-scene ${size}${rl>0?" rare":""}`;
+  const flipper=document.createElement("div"); flipper.className="card-flipper";
+  const back=document.createElement("div"); back.className="card-face"; back.innerHTML=makeCardBackSVG(w,h);
+  const front=document.createElement("div"); front.className="card-face card-front";
+  front.style.cssText=`background:#000;border-radius:10px;box-shadow:0 0 ${rl>0?18:9}px ${col.glow}`;
+  front.innerHTML=makeCardFrontSVG(tIdx,w,h);
+  if(price>0){
+    const pl=document.createElement("div");
+    pl.style.cssText=`position:absolute;bottom:4px;left:0;right:0;text-align:center;font-family:'DM Mono',monospace;font-size:${size==="lg"?12:size==="md"?10:8}px;font-weight:500;color:${col.text};z-index:5;text-shadow:0 1px 4px rgba(0,0,0,.95)`;
+    pl.textContent=fmtY(price); front.appendChild(pl);
+  }
+  if(rl>0){
+    const ring=document.createElement("div"); ring.className="rare-ring";
+    ring.style.cssText=`box-shadow:0 0 0 3px ${col.bg},0 0 26px ${col.glow},0 0 52px ${col.glow}`;
+    scene.appendChild(ring);
+    const shine=document.createElement("div"); shine.className="card-shine"; front.appendChild(shine);
+  }
+  flipper.appendChild(back); flipper.appendChild(front); scene.appendChild(flipper);
+  return scene;
+}
+
+// ════════════════════════════════════════
+// RARE EFFECTS
+// ════════════════════════════════════════
+function spawnConfetti(mc){
+  const over=document.getElementById("spotlight"); if(!over)return;
+  const cs=[mc,"#fbbf24","#f472b6","#818cf8","#34d399","#fff"];
+  for(let i=0;i<22;i++){
+    const p=document.createElement("div"); p.className="cf-p";
+    const c=cs[i%cs.length];
+    p.style.cssText=`background:${c};left:${20+Math.random()*60}%;top:${-5+Math.random()*15}%;--d:${.7+Math.random()*.8}s;--dl:${Math.random()*.4}s;transform:rotate(${Math.random()*360}deg);width:${5+Math.random()*7}px;height:${5+Math.random()*7}px;border-radius:${Math.random()>.5?"50%":"2px"}`;
+    over.appendChild(p); setTimeout(()=>p.remove(),1400);
+  }
+}
+function closeSpotlight(){
+  const ov=document.getElementById("spotlight"); if(ov)ov.style.display="none";
+  const ci=document.getElementById("spot-inner"); if(ci)ci.innerHTML="";
+}
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeSpotlight();});
+
+function triggerRareEffect(scene,tIdx,price){
+  const rl=RARE_LV(tIdx);
+  const col=COLORS[tIdx%COLORS.length];
+  if(rl===1){
+    const shine=scene.querySelector(".card-shine");
+    if(shine) setTimeout(()=>shine.classList.add("sweep"),360);
+    return;
+  }
+  if(rl===2){
+    const shine=scene.querySelector(".card-shine"); if(shine) setTimeout(()=>shine.classList.add("sweep"),360);
+    const ring=scene.querySelector(".rare-ring"); if(ring) setTimeout(()=>ring.classList.add("burst"),290);
+    setTimeout(()=>{
+      const overlay=document.getElementById("spotlight"); if(!overlay)return;
+      const inner=document.getElementById("spot-inner");
+      const lbl=document.getElementById("spot-lbl");
+      overlay.style.setProperty("--gc",col.glow);
+      const w=175,h=245;
+      inner.innerHTML=`<div style="width:${w}px;height:${h}px">
+        <svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" style="border-radius:14px;display:block;box-shadow:0 0 40px ${col.glow},0 0 80px ${col.glow}66">
+          ${TIER_ART[tIdx%TIER_ART.length](w,h,col)}
+          <rect x="0" y="0" width="${w}" height="${h*.115}" rx="12" fill="${col.bg}" opacity=".85"/>
+          <rect x="0" y="${h*.085}" width="${w}" height="${h*.03}" fill="${col.bg}" opacity=".85"/>
+          <text x="${w/2}" y="${h*.082}" text-anchor="middle" font-size="${w*.10}" fill="${col.text}" font-family="'DM Mono',monospace" font-weight="500">TIER ${tIdx+1}</text>
+          <rect x="0" y="${h*.87}" width="${w}" height="${h*.13}" fill="${col.bg}" opacity=".82"/>
+          <rect x="2" y="2" width="${w-4}" height="${h-4}" rx="12" fill="none" stroke="${col.bg}" stroke-width="3"/>
+          <rect x="6" y="6" width="${w-12}" height="${h-12}" rx="9" fill="none" stroke="#fff" stroke-width=".7" opacity=".18"/>
+          ${price>0?`<text x="${w/2}" y="${h*.935}" text-anchor="middle" font-size="13" fill="${col.text}" font-family="'DM Mono',monospace" font-weight="500">${fmtY(price)}</text>`:""}
+        </svg>
+      </div>`;
+      if(lbl){lbl.textContent=`${ICONS[tIdx%10]} TIER ${tIdx+1}${tIdx===0?" — TOP PRIZE!":" — RARE!"}`;lbl.style.color=col.bg;}
+      spawnConfetti(col.bg);
+      overlay.style.display="flex";
+    },480);
+  }
+}
+
+// ════════════════════════════════════════
+// PULL
+// ════════════════════════════════════════
+function buildDeck(){
+  const tiers=state.tiers, last=tiers[tiers.length-1], calc=calcAll(); let deck=[];
+  tiers.forEach((tier,tIdx)=>{
+    if(tier.id===last.id){const p=parse(tier.avgPrice);for(let i=0;i<calc.lastCount;i++) deck.push({tIdx,price:p});}
+    else if(tier.mode==="detail"){tier.items.forEach(it=>deck.push({tIdx,price:parse(it.price)}));}
+    else{const p=parse(tier.avgPrice),c=parse(tier.count);for(let i=0;i<c;i++) deck.push({tIdx,price:p});}
+  });
+  return shuffle(deck);
+}
+function doPull(n){
+  if(sim.deck.length===0&&sim.drawn.length===0){
+    const calc=calcAll();
+    if(calc.totalSales===0){alert("計算機タブで総口数・1口価格・Tier設定を入力してください");return;}
+    sim.deck=buildDeck();
+  }
+  if(sim.deck.length===0){alert("全口引き終わりました。リセットしてください。");return;}
+  const avail=Math.min(n,sim.deck.length); const cards=[];
+  for(let i=0;i<avail;i++){
+    const c=sim.deck.shift(); sim.drawn.push(c);
+    sim.spent+=parse(state.pricePerLot); sim.gained+=c.price; cards.push(c);
+  }
+  renderDrawZone(cards,n); updateSimUI(cards);
+}
+function renderDrawZone(cards,requested){
+  const zone=document.getElementById("draw-zone"); zone.innerHTML="";
+  const size=cards.length===1?"lg":cards.length<=10?"md":"sm";
+  const grid=document.createElement("div"); grid.className="cards-grid";
+  let topTIdx=-1,topEl=null,topPrice=0;
+  cards.forEach((card,i)=>{
+    const rl=RARE_LV(card.tIdx);
+    const el=makeCardEl(card.tIdx,card.price,size,rl);
+    const delay=(i*26)+75;
+    if(rl===0){
+      setTimeout(()=>el.classList.add("flipped"),delay);
+    } else if(rl===1){
+      setTimeout(()=>{el.classList.add("flipped");triggerRareEffect(el,card.tIdx,card.price);},delay);
+    } else {
+      setTimeout(()=>el.classList.add("flipped"),delay);
+      if(topTIdx===-1||card.tIdx<topTIdx){topTIdx=card.tIdx;topEl=el;topPrice=card.price;}
+    }
+    grid.appendChild(el);
+  });
+  if(topTIdx>=0&&topEl) setTimeout(()=>triggerRareEffect(topEl,topTIdx,topPrice),cards.length*26+220);
+  zone.appendChild(grid);
+  if(cards.length<requested){
+    const note=document.createElement("div");
+    note.style.cssText="font-size:11px;color:#94a3b8;margin-top:7px;text-align:center;font-family:'DM Mono',monospace";
+    note.textContent=`残り${cards.length}口のみ引きました`; zone.appendChild(note);
+  }
+}
+const rcSim=r=>r>=100?"#10b981":r>=70?"#f59e0b":"#ef4444";
+function updateSimUI(newCards){
+  const sp=sim.spent,ga=sim.gained,cnt=sim.drawn.length;
+  const pl=ga-sp,rate=sp>0?(ga/sp)*100:0,has=cnt>0;
+  const rcolor=rcSim(rate);
+  document.getElementById("pl-val").textContent=has?(pl>=0?`+${fmtY(Math.round(pl))}`:fmtY(Math.round(pl)).replace("¥","−¥")):"± 0円";
+  document.getElementById("pl-val").style.color=has?(pl>=0?"#10b981":"#ef4444"):"#cbd5e1";
+  document.getElementById("pl-sub").textContent=`${fmt(cnt)}口引いた`;
+  const circ=195,filled=has?Math.min(rate/150,1)*circ:0;
+  const arc=document.getElementById("rate-ring-arc");
+  arc.style.strokeDashoffset=circ-filled; arc.style.stroke=has?rcolor:"#e2e8f0";
+  document.getElementById("rate-ring-num").textContent=has?rate.toFixed(1):"—";
+  document.getElementById("rate-ring-num").style.color=has?rcolor:"#cbd5e1";
+  document.getElementById("wl-spent").textContent=fmtY(sp);
+  document.getElementById("wl-gained").textContent=fmtY(Math.round(ga));
+  document.getElementById("wl-gained").style.color=has?(ga>=sp?"#10b981":"#f59e0b"):"#cbd5e1";
+  const tl=parse(state.totalLots);
+  document.getElementById("wl-remain").textContent=tl>0?`${fmt(sim.deck.length)}/${fmt(tl)}`:fmt(sim.deck.length);
+  document.getElementById("wl-drawn").textContent=fmt(cnt);
+  const barPct=has?Math.min(rate/150*100,100):0;
+  document.getElementById("rate-bar-fill").style.width=`${barPct}%`;
+  document.getElementById("rate-bar-fill").style.background=has?`linear-gradient(90deg,${rcolor}77,${rcolor})`:"var(--g200)";
+  document.getElementById("rate-bar-label").textContent=has?`${rate.toFixed(2)}%`:"";
+  document.getElementById("rate-bar-label").style.color=has?rcolor:"#94a3b8";
+  const pb=document.getElementById("pl-box");
+  pb.style.borderColor=has?(rate>=100?"#a7f3d0":rate>=70?"#fde68a":"#fecaca"):"#e2e8f0";
+  pb.style.background=has?(rate>=100?"#ecfdf5":rate>=70?"#fffbeb":"#fef2f2"):"#f8fafc";
+
+  if(newCards&&newCards.length>0){
+    const log=document.getElementById("pull-log");
+    if(log.querySelector(".empty-hint")) log.innerHTML="";
+    [...newCards].reverse().forEach(card=>{
+      const col=COLORS[card.tIdx%COLORS.length];
+      const rl=RARE_LV(card.tIdx);
+      const row=document.createElement("div"); row.className="log-row fi";
+      row.style.borderLeftColor=col.bg;
+      if(rl===2) row.style.background=col.dim;
+      row.innerHTML=`<span style="flex-shrink:0">${ICONS[card.tIdx%10]}</span>
+        <span style="font-weight:600;font-size:11px;color:${col.bg};min-width:34px;flex-shrink:0">T${card.tIdx+1}</span>
+        ${rl===2?`<span style="font-size:10px;color:${col.bg}">🌟</span>`:""}
+        <span style="flex:1"></span>
+        <span style="font-family:'DM Mono',monospace;font-size:12px;font-weight:500;color:${card.price>0?"#f59e0b":"#94a3b8"};flex-shrink:0">${card.price>0?fmtY(card.price):"—"}</span>`;
+      log.insertBefore(row,log.firstChild);
+    });
+    while(log.children.length>80) log.removeChild(log.lastChild);
+    document.getElementById("log-count").textContent=`${fmt(cnt)}口`;
+  }
+}
+function resetSim(){
+  sim={deck:[],drawn:[],spent:0,gained:0};
+  document.getElementById("draw-zone").innerHTML=`<div style="font-size:13px;color:#94a3b8;text-align:center;line-height:2">ボタンを押してスタート！</div>`;
+  document.getElementById("pull-log").innerHTML=`<div class="empty-hint">まだ引いていません</div>`;
+  document.getElementById("log-count").textContent="";
+  updateSimUI([]);
+  document.getElementById("pl-val").textContent="± 0円"; document.getElementById("pl-val").style.color="#cbd5e1";
+  document.getElementById("pl-sub").textContent="0口引いた";
+  const pb=document.getElementById("pl-box"); pb.style.borderColor="#e2e8f0"; pb.style.background="#f8fafc";
+}
+
+// ════════════════════════════════════════
+// MEMO
+// ════════════════════════════════════════
+function renderMemo(){
+  const calc=calcAll();
+  const{totalInserted,totalSales,returnRate,expectedValue,tierCounts,tierTotals}=calc;
+  const name=document.getElementById("oripaName")?.value||"（名称未設定）";
+  const tpl=parse(state.totalLots), ppl=parse(state.pricePerLot);
+
+  const now=new Date();
+  const ds=`${now.getFullYear()}/${String(now.getMonth()+1).padStart(2,"0")}/${String(now.getDate()).padStart(2,"0")} ${String(now.getHours()).padStart(2,"0")}:${String(now.getMinutes()).padStart(2,"0")}`;
+  const S="─".repeat(40), S2="═".repeat(40);
+  const L=[S2,`  🎴 オリパ設定メモ`,S2];
+  L.push(`  オリパ名    : ${name}`,`  作成日時    : ${ds}`,S,`【 基本設定 】`);
+  L.push(`  総口数          : ${tpl>0?fmt(tpl)+"口":"未設定"}`);
+  L.push(`  1口販売価格     : ${ppl>0?fmtY(ppl):"未設定"}`);
+  L.push(`  販売合計金額    : ${totalSales>0?fmtY(totalSales):"—"}`,S,`【 景品Tier設定 】`);
+  state.tiers.forEach((tier,i)=>{
+    const isLast=i===state.tiers.length-1;
+    const cnt=tierCounts[i]||0, total=tierTotals[i]||0;
+    const avgP=getAvgP(tier,isLast);
+    const tn=tier.name?` 《${tier.name}》`:"";
+    L.push(``,`  ${ICONS[i%10]} Tier ${tier.num}${tn}${isLast?" ← 最終Tier（自動計算）":""}`);
+    if(tier.mode==="detail"&&!isLast&&tier.items.length>0){
+      L.push(`    方式        : 個別指定（${tier.items.length}枚）`);
+      tier.items.forEach((it,j)=>L.push(`    [${j+1}] ${it.name||"名称未設定"}  ${parse(it.price)>0?fmtY(parse(it.price)):"価格未設定"}`));
+    } else {
+      L.push(`    方式        : 平均指定`,`    口数        : ${cnt>0?fmt(cnt)+"口":(isLast?"自動":"未設定")}`);
+      L.push(`    景品平均価格: ${avgP>0?fmtY(avgP):"未設定"}`);
+    }
+    L.push(`    封入額合計  : ${total>0?fmtY(Math.round(total)):"—"}`);
+    if(tpl>0&&cnt>0) L.push(`    出現確率    : ${((cnt/tpl)*100).toFixed(3)}%（${fmt(tpl)}口中 ${fmt(cnt)}口）`);
+  });
+  L.push(``,S,`【 計算結果 】`);
+  L.push(`  封入額合計       : ${totalInserted>0?fmtY(Math.round(totalInserted)):"—"}`);
+  L.push(`  封入還元率       : ${totalSales>0?returnRate.toFixed(2)+"%":"—"}`);
+  L.push(`  1口あたり期待値  : ${totalSales>0&&tpl>0?fmtY(Math.round(expectedValue)):"—"}`);
+
+  L.push(S2,`  ※ OripaCalc で生成されたメモです`,S2);
+  const el=document.getElementById("memo-out"); if(el) el.value=L.join("\n");
+}
+function copyMemo(){
+  renderMemo();
+  const txt=document.getElementById("memo-out").value;
+  const btn=document.getElementById("copy-btn");
+  const ok=()=>{btn.innerHTML="✓ コピー完了";btn.classList.add("ok");setTimeout(()=>{btn.innerHTML='<svg width="12" height="12" viewBox="0 0 16 16" fill="none"><rect x="5" y="5" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M3 10H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> コピー';btn.classList.remove("ok");},2200);};
+  if(navigator.clipboard){navigator.clipboard.writeText(txt).then(ok).catch(()=>{document.getElementById("memo-out").select();document.execCommand("copy");ok();});}
+  else{document.getElementById("memo-out").select();document.execCommand("copy");ok();}
+}
+
+// ════════════════════════════════════════
+// RESET / TAB
+// ════════════════════════════════════════
+function confirmReset(){document.getElementById("reset-modal").style.display="flex";}
+function closeResetModal(){document.getElementById("reset-modal").style.display="none";}
+function doReset(){
+  state={totalLots:"",pricePerLot:"",tiers:[mkTier(1)]};
+  ["totalLots","pricePerLot","oripaName"].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.value="";
+  });
+  resultBuilt=false;
+  const ra=document.getElementById("result-area"); if(ra) ra.innerHTML="";
+  const dt=document.getElementById("result-desktop"); if(dt) dt.innerHTML="";
+  closeResetModal(); updateTierCountDisplay(); render(); resetSim();
+}
+
+const TABS=["calc","sim","memo"];
+function switchTab(t){
+  currentTab=t;
+  TABS.forEach((id,i)=>{
+    document.getElementById(`tab-${id}`).style.display=id===t?"block":"none";
+    document.querySelectorAll(".tab-btn")[i].classList.toggle("active",id===t);
+  });
+  if(t==="sim"&&sim.deck.length===0&&sim.drawn.length===0){
+    const calc=calcAll();
+    if(calc.totalSales>0){
+      sim.deck=buildDeck();
+      document.getElementById("draw-zone").innerHTML=`<div style="font-size:13px;color:#94a3b8;text-align:center">ボタンを押してスタート！（全${fmt(sim.deck.length)}口）</div>`;
+      updateSimUI([]);
+    }
+  }
+  if(t==="memo") renderMemo();
+}
+
+// ════════════════════════════════════════
+// LEGAL DOCS
+// ════════════════════════════════════════
+const DOCS={
+  about:`<h2>このサイトについて</h2><span class="upd">最終更新：2025年1月</span>
+<p>「OripaCalc」は、オリジナルパック（オリパ）の封入設計・還元率計算・利益シミュレーションを無料で行えるWebツールです。</p>
+<h3>主な機能</h3><ul>
+<li>景品Tierごとの封入枚数・封入価格の設定と計算</li>
+<li>封入還元率・1口あたり期待値のリアルタイム計算</li>
+<li>仕入れコストを考慮した利益率シミュレーション</li>
+<li>実際のオリパを引く体験シミュレーター（上位ランク演出付き）</li>
+<li>設定内容のテキストメモ出力機能</li></ul>
+<h3>注意事項</h3><ul>
+<li>本ツールの計算結果はあくまで参考値です。実際のカード相場・取引条件とは異なる場合があります。</li>
+<li>本ツールを利用した取引・販売・その他の行為について、当サイトは一切の責任を負いません。</li>
+<li>入力データはブラウザのメモリにのみ保存され、サーバーへの送信は行いません。</li></ul>`,
+  terms:`<h2>利用規約</h2><span class="upd">最終更新：2025年1月</span>
+<h3>第1条（適用）</h3><p>本規約は、本Webサイト「OripaCalc」（以下「本サービス」）の利用に関する条件を定めるものです。ユーザーは本サービスを利用することで本規約に同意したものとみなされます。</p>
+<h3>第2条（利用条件）</h3><ul><li>本サービスは無料でご利用いただけます。</li><li>情報提供を目的としたツールであり、実際の取引や販売の保証を行うものではありません。</li><li>計算結果の正確性について、当サービスは保証しません。</li></ul>
+<h3>第3条（禁止事項）</h3><ul><li>本サービスのシステムやコンテンツを無断で複製・転載・改変すること</li><li>本サービスを利用した違法行為・不正行為</li><li>本サービスの運営を妨げる行為</li></ul>
+<h3>第4条（免責事項）</h3><p>本サービスの利用によって生じた損害（直接・間接を問わず）について、当サービスは一切の責任を負いません。</p>
+<h3>第5条（変更・終了）</h3><p>当サービスは予告なく内容の変更・終了を行う場合があります。</p>
+<h3>第6条（準拠法）</h3><p>本規約は日本法に準拠します。</p>`,
+  privacy:`<h2>プライバシーポリシー</h2><span class="upd">最終更新：2025年1月</span>
+<h3>個人情報の取り扱いについて</h3><p>本サービス「OripaCalc」は、ユーザーの個人情報を収集しません。</p>
+<h3>入力データについて</h3><p>本ツールに入力されたデータはすべてお客様のブラウザ上（メモリ）でのみ処理されます。サーバーへの送信は一切行いません。ページを閉じるとすべてのデータは消去されます。</p>
+<h3>アクセス解析について</h3><p>本サービスでは、サービス改善を目的としてGoogle Analyticsなどのアクセス解析ツールを使用する場合があります。Cookieを使用しますが、個人を特定する情報は含まれません。</p>
+<h3>広告について</h3><p>本サービスでは、Google AdSenseなどの第三者配信事業者が広告を配信する場合があります。Cookieを使用して過去のアクセス情報に基づく広告を配信することがあります。詳細は<a href="https://policies.google.com/technologies/ads" target="_blank" rel="noopener">Googleのポリシー</a>をご参照ください。</p>`,
+  contact:`<h2>お問い合わせ</h2><span class="upd">最終更新：2025年1月</span>
+<p>本サービスに関するご意見・ご要望・不具合報告は以下よりお問い合わせください。</p>
+<h3>メール</h3><div class="cbox">contact@oripa-calc.example.com</div>
+<h3>よくある質問</h3><ul>
+<li><strong>計算結果が合わない</strong> — 最終Tierの口数は自動計算（総口数 − 上位Tier口数の合計）です。各Tierの口数設定をご確認ください。</li>
+<li><strong>データが消えた</strong> — ページを再読み込みするとデータがリセットされます。「メモ出力」タブからコピーして保管してください。</li>
+<li><strong>スマホで使いにくい</strong> — 改善要望はお問い合わせください。</li></ul>`
+};
+function showDoc(k){document.getElementById("doc-content").innerHTML=DOCS[k]||"";document.getElementById("doc-modal").style.display="flex";}
+function closeDocModal(){document.getElementById("doc-modal").style.display="none";}
+
+// ════════════════════════════════════════
+// RESIZE + INIT
+// ════════════════════════════════════════
+let rzTimer;
+window.addEventListener("resize",()=>{
+  clearTimeout(rzTimer);
+  rzTimer=setTimeout(()=>{if(currentTab==="calc") render();},160);
+});
+
+render();
+</script>
+</body>
+</html>
